@@ -67,8 +67,8 @@ A Claude Code skill and agent for spec-driven development. Specs are the source 
 ### Why This Matters for AI-Assisted Development
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                    WITHOUT SPEC                │     WITH SPEC          │
+┌──────────────────────────────────────────────────────────────────────────┐
+│                    WITHOUT SPEC                │     WITH SPEC           │
 ├────────────────────────────────────────────────┼─────────────────────────┤
 │                                                │                         │
 │  User: "Add user auth"                         │  User: "Add user auth"  │
@@ -225,11 +225,11 @@ Vibe coding without specs creates a patch loop that compounds debt with every it
 │                                                                         │
 │  SPEC                    CODE                   TEST                    │
 │                                                                         │
-│  UserStory-auth-01 ─────▶ login.ts ────────────▶ login.spec.ts         │
-│  "User can login"        handleLogin()          @spec UserStory-auth-01│
+│  UserStory-auth-01 ─────▶ login.ts ────────────▶ login.spec.ts          │
+│  "User can login"        handleLogin()          @spec UserStory-auth-01 │
 │                                │                        │               │
 │                                │                        │               │
-│  REQ-1 ─────────────────▶ validates password ──▶ "REQ-1: min 8 chars"  │
+│  REQ-1 ─────────────────▶ validates password ──▶ "REQ-1: min 8 chars"   │
 │  "Password min 8 chars"                                                 │
 │                                                                         │
 │  ─────────────────────────────────────────────────────────────────────  │
@@ -318,8 +318,8 @@ Spec → Implement → Test → Update spec if needed
     │ Intent  │    │ Doesn't  │    │ Doesn't │
     │ changed │    │ match    │    │ match   │
     └────┬────┘    └────┬─────┘    └────┬────┘
-         │              │               │
-         ▼              ▼               ▼
+         │               │               │
+         ▼               ▼               ▼
     ┌─────────┐    ┌──────────┐    ┌─────────┐
     │ Update  │    │ FIX CODE │    │ Fix     │
     │ spec,   │    │          │    │ test    │

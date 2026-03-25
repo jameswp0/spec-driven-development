@@ -63,7 +63,7 @@ A workflow for analyzing and prioritizing todos across all feature specs:
 
 ### Component Diagram
 
-```
+```text
 skills/spec-driven-development/workflows/
 ├── bootstrap.md    ← read by agent for bootstrapping operations
 └── todos.md        ← read by agent for todo analysis
@@ -75,7 +75,7 @@ Each workflow references:
 
 ### Data Flow: Bootstrap
 
-```
+```text
 Developer: /sdd bootstrap
     → agent reads bootstrap.md
     → Step 1: Glob specs/**/*.md → check existing
@@ -88,7 +88,7 @@ Developer: /sdd bootstrap
 
 ### Data Flow: Todo Analysis
 
-```
+```text
 Developer: /sdd what should I work on?
     → agent reads todos.md
     → Glob specs/**/*.md → Read each spec's Future Considerations
@@ -143,7 +143,7 @@ Developer: /sdd what should I work on?
 
 ### File Dependency Graph
 
-```
+```text
 skills/spec-driven-development/workflows/
 ├── bootstrap.md        [references: templates/overview.template.md, templates/feature.template.md]
 └── todos.md            [standalone; reads specs/**/*.md at runtime]
@@ -180,6 +180,7 @@ skills/spec-driven-development/workflows/
 **Context:** Bootstrap and todo analysis could be documented inline in SKILL.md.
 
 **Options Considered:**
+
 1. Inline in SKILL.md — always loaded, no extra reads
 2. Separate workflow files — loaded only when needed
 
@@ -231,3 +232,5 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
+| 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |

@@ -51,7 +51,7 @@
 
 ### Component Diagram
 
-```
+```text
 ~/.claude/skills/spec-driven-development/
 ├── SKILL.md                    ← loaded into every conversation context
 ├── templates/
@@ -69,7 +69,7 @@
 
 ### Data Flow
 
-```
+```text
 Claude Code loads ~/.claude/skills/spec-driven-development/SKILL.md
     → methodology available inline in context
     → user makes request
@@ -121,7 +121,7 @@ Claude Code loads ~/.claude/skills/spec-driven-development/SKILL.md
 
 ### File Dependency Graph
 
-```
+```text
 skills/spec-driven-development/
 ├── SKILL.md                        [references: templates/, workflows/, references/]
 ├── templates/
@@ -170,12 +170,13 @@ Not applicable — this feature is a Markdown file, not a software component.
 **Context:** The skill could be a single pointer file ("see workflow X") or contain the full methodology inline.
 
 **Options Considered:**
+
 1. Pointer-only — skill is tiny, always reads referenced files
 2. Inline — skill contains all rules and flow, references for details only
 
 **Decision:** Inline for core methodology (rules, flow, intent detection, bug tracking). Pointers only for format examples and templates (which change less often and are detailed).
 
-**Consequences:** Skill is verbose (~400 lines) but Claude has everything it needs without reading secondary files for every request. Speeds up common operations.
+**Consequences:** Skill is verbose (~500 lines) but Claude has everything it needs without reading secondary files for every request. Speeds up common operations.
 
 ### Decision 2: No-gos section removed; acceptance criteria moved inline
 
@@ -222,3 +223,6 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
+| 2026-03-25 | Updated SKILL.md line count approximation from ~400 to ~500 | Health check found stale approximation (actual: 494 lines) |
+| 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |

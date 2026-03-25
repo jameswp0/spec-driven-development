@@ -201,7 +201,7 @@ When user says "check specs", "health", or after significant work:
 
 1. Use Glob (`specs/**/*.md`, `app_spec/**/*.md`) to find all spec files
 2. For each spec: verify file paths exist (CODE-RULE.2), extract actual signatures (CODE-RULE.3), fix placeholder paths (CODE-RULE.6), fill empty cells (CODE-RULE.7), make descriptions specific (CODE-RULE.8), ensure ≥3 error cases (CODE-RULE.10), ensure ≥3 edge cases (CODE-RULE.11-edge)
-3. Use Glob to identify stray `.md`/`.txt` files outside `specs/`/`app_spec/` — report what was found and **confirm with user before deleting**. Exceptions (never flag): `README.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/**`
+3. Use Glob to identify stray `.md`/`.txt` files outside `specs/`/`app_spec/` — report what was found and **confirm with user before deleting**. Exceptions (never flag): `README.md`, `INSTALL.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/**`
 
 ---
 

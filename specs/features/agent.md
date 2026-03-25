@@ -51,7 +51,7 @@
 
 ### Component Diagram
 
-```
+```text
 Developer workspace
   └── Project with code files
 
@@ -77,7 +77,7 @@ Developer workspace
 
 ### Data Flow
 
-```
+```text
 User invokes /sdd command
     → command summarizes conversation context
     → command calls Task tool with subagent_type="spec-driven-development"
@@ -133,7 +133,7 @@ User invokes /sdd command
 
 ### File Dependency Graph
 
-```
+```text
 agents/spec-driven-development.md       [skill: spec-driven-development]
     └── defers to:
         ~/.claude/skills/spec-driven-development/SKILL.md
@@ -164,6 +164,7 @@ skills: spec-driven-development
 **Context:** The agent could duplicate the methodology or defer to the skill.
 
 **Options Considered:**
+
 1. Agent contains full methodology (duplicates skill content)
 2. Agent contains only quick reference + tool list; skill has details
 
@@ -215,3 +216,5 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
+| 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |

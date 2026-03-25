@@ -47,7 +47,7 @@
 
 ### Component Diagram
 
-```
+```text
 skills/spec-driven-development/
 └── templates/
     ├── overview.template.md    ← used for: specs/overview.md or app_spec/overview.md
@@ -56,7 +56,7 @@ skills/spec-driven-development/
 
 ### Data Flow
 
-```
+```text
 Developer or agent wants to create a new spec
     → reads overview.template.md or feature.template.md (as instructed by SKILL.md)
     → fills in sections with real content from codebase
@@ -103,7 +103,7 @@ Developer or agent wants to create a new spec
 
 ### File Dependency Graph
 
-```
+```text
 skills/spec-driven-development/templates/
 ├── overview.template.md        [standalone; referenced by SKILL.md and bootstrap.md]
 └── feature.template.md         [standalone; referenced by SKILL.md and bootstrap.md]
@@ -207,3 +207,5 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
+| 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |

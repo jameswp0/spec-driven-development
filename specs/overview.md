@@ -34,7 +34,7 @@ Developers using AI assistants (Claude Code) without explicit specs get inconsis
 
 ### High-Level Diagram
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────┐
 │  Developer's ~/.claude/ config directory                         │
 │                                                                  │
@@ -100,7 +100,7 @@ This project contains only Markdown files. There is no build step, no package ma
 
 ### Skill Load Flow
 
-```
+```text
 Claude Code starts conversation
     → loads ~/.claude/skills/spec-driven-development/SKILL.md into context
     → methodology available inline for proactive guidance
@@ -108,7 +108,7 @@ Claude Code starts conversation
 
 ### Command Invocation Flow
 
-```
+```text
 User: /sdd "bootstrap"
     → commands/spec-driven-development.md runs
     → summarizes recent conversation context
@@ -120,7 +120,7 @@ User: /sdd "bootstrap"
 
 ### Spec Health Check Flow
 
-```
+```text
 User: /sdd "check specs"
     → agent invoked
     → Glob finds all specs/**/*.md files
@@ -169,7 +169,7 @@ Files are versioned via git. Users who install by `cp` get a snapshot; they re-c
 ### Setup
 
 ```bash
-git clone https://github.com/[owner]/spec-driven-development
+git clone https://github.com/jameswp0/spec-driven-development
 cd spec-driven-development
 ```
 
@@ -234,7 +234,6 @@ cp commands/spec-driven-development.md ~/.claude/commands/
 
 - [ ] Add a git-hook workflow for automatically running spec health check before commit
 - [ ] Add a `workflows/test-generation.md` for generating full test suites from specs
-- [ ] Provide a project-local install option with `.claude/` directory support documented
 
 ---
 
@@ -243,3 +242,5 @@ cp commands/spec-driven-development.md ~/.claude/commands/
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Documented project-local install in INSTALL.md | Reduces install friction |
+| 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |

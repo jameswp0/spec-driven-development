@@ -45,7 +45,7 @@
 
 ### Component Diagram
 
-```
+```text
 Developer types: /sdd "bootstrap"
     │
     ▼
@@ -58,7 +58,7 @@ agents/spec-driven-development.md
 skills/spec-driven-development/SKILL.md
 ```
 
-```
+```text
 Developer types: /spec-driven-development "check specs"
     │
     ▼
@@ -74,7 +74,7 @@ agents/spec-driven-development.md
 
 ### Data Flow
 
-```
+```text
 User types /sdd [request]
     → command file executes
     → Context (optional) + Request assembled
@@ -125,7 +125,7 @@ User types /sdd [request]
 
 ### File Dependency Graph
 
-```
+```text
 commands/
 ├── sdd.md                      [minimal wrapper → agents/spec-driven-development.md]
 └── spec-driven-development.md  [allowed-tools: Task → agents/spec-driven-development.md]
@@ -140,7 +140,7 @@ commands/
 
 ### commands/sdd.md Content
 
-```
+```text
 Invoke the spec-driven-development agent.
 
 Context: Summarize what the user was just working on.
@@ -176,6 +176,7 @@ Use Task tool with subagent_type="spec-driven-development".
 **Context:** A single command could serve both use cases, but the context summarization step adds meaningful overhead for quick invocations.
 
 **Options Considered:**
+
 1. One command that always summarizes context
 2. Two commands: minimal (/sdd) and context-rich (/spec-driven-development)
 
@@ -227,3 +228,5 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
+| 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
+| 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |

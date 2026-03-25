@@ -197,6 +197,7 @@ Not applicable — this feature is a Markdown file, not a software component.
 
 ### Not Worth Testing
 
+- Automated tests (no runnable code — methodology-only repo)
 - Whether Claude actually follows the rules (behavioral, not structural)
 - File size of SKILL.md (not a spec concern)
 

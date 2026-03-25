@@ -203,6 +203,7 @@ Use Task tool with subagent_type="spec-driven-development".
 
 ### Not Worth Testing
 
+- Automated tests (no runnable code — methodology-only repo)
 - Claude's summarization quality (behavioral)
 - Whether Task tool succeeds (Claude Code platform concern)
 

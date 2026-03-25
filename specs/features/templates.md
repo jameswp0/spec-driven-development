@@ -183,6 +183,7 @@ skills/spec-driven-development/templates/
 
 ### Not Worth Testing
 
+- Automated tests (no runnable code — methodology-only repo)
 - Whether placeholder text is visually obvious (subjective)
 - Template file size
 

@@ -2,6 +2,8 @@
 
 A Claude Code skill and agent for spec-driven development. Specs are the source of truth—write them before code, update them after implementation, use them to diagnose failures.
 
+→ [Install](INSTALL.md)
+
 ## Why Specs as Source of Truth?
 
 ### The Problem with Code as Truth
@@ -391,20 +393,6 @@ Spec → Implement → Test → Update spec if needed
 | Bug fixed | Remove from Known Issues |
 | "What to work on?" | Surface and prioritize todos |
 | Checking quality | Run health check against specs |
-
-## Installation
-
-Copy to your Claude Code global config:
-
-```bash
-# From this repo
-cp -r skills/spec-driven-development ~/.claude/skills/
-cp agents/spec-driven-development.md ~/.claude/agents/
-cp commands/sdd.md ~/.claude/commands/
-cp commands/spec-driven-development.md ~/.claude/commands/
-```
-
-Or copy to a project's `.claude/` directory for project-specific use.
 
 ## Usage
 

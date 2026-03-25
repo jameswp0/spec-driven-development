@@ -207,6 +207,7 @@ skills/spec-driven-development/workflows/
 
 ### Not Worth Testing
 
+- Automated tests (no runnable code — methodology-only repo)
 - Quality of Claude's YAGNI judgment (behavioral)
 - Completeness of generated specs (covered by spec health check)
 

@@ -191,6 +191,7 @@ skills: spec-driven-development
 
 ### Not Worth Testing
 
+- Automated tests (no runnable code — methodology-only repo)
 - Whether Claude follows rules (behavioral)
 - Agent response time
 

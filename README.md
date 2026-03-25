@@ -108,7 +108,7 @@ Vibe coding without specs creates a patch loop that compounds debt with every it
          VIBE CODING                                    SPEC-DRIVEN
               │                                              │
               ▼                                              ▼
-┌─────────────────────────────┐                 ┌───────────────────────┐
+┌─────────────────────────────┐                 ┌───────────────────────┐      │
 │          BUILD              │                 │      UNDERSTAND       │◀─────┐
 │                             │                 │                       │      │
 │  "Make a login page"        │                 │  What problem?        │      │
@@ -366,15 +366,15 @@ Spec → Implement → Test → Update spec if needed
 ┌────────────────────────────────────────────────────────────────┐
 │                        SKILL                                   │
 │                                                                │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐│
-│  │ The Flow    │  │ Quality     │  │ Bug Tracking            ││
-│  │             │  │ Checklist   │  │                         ││
-│  │ Understand  │  │             │  │ When You Find a Bug     ││
-│  │ Spec        │  │ 30+ items   │  │ When You Fix a Bug      ││
-│  │ Implement   │  │             │  │ Severity Guide          ││
-│  │ Test        │  │             │  │                         ││
-│  │ Reflect     │  │             │  │                         ││
-│  └─────────────┘  └─────────────┘  └─────────────────────────┘│
+│  ┌─────────────┐  ┌─────────────┐  ┌──────────────────────────┐│
+│  │ The Flow    │  │ Quality     │  │ Bug Tracking             ││
+│  │             │  │ Checklist   │  │                          ││
+│  │ Understand  │  │             │  │ When You Find a Bug      ││
+│  │ Spec        │  │ 30+ items   │  │ When You Fix a Bug       ││
+│  │ Implement   │  │             │  │ Severity Guide           ││
+│  │ Test        │  │             │  │                          ││
+│  │ Reflect     │  │             │  │                          ││
+│  └─────────────┘  └─────────────┘  └──────────────────────────┘│
 │                                                                │
 │  Templates: overview.md, feature.md                            │
 │  Workflows: bootstrap.md, todos.md                             │

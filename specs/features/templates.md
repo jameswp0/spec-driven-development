@@ -9,6 +9,7 @@
 - UserStory-templates-01: As a developer, I can copy the overview template to create a project-level spec so that I don't miss any of the required sections (architecture, tech stack, data flow, cross-cutting concerns)
 - UserStory-templates-02: As a developer, I can copy the feature template to create a feature spec so that I fill the required core sections and add optional sections only when their *Include when* test passes
 - UserStory-templates-03: As a developer, I can read the feature template's Implementation section so that I know to document a file map (path + purpose) and entry points — and to leave signatures, props, types, and schemas in the code
+- UserStory-templates-04: As a developer, I can copy the CLAUDE-SDD.md starter into a new project as CLAUDE.md so that spec-driven development is bound into every Claude session's workflow from day one
 
 ---
 
@@ -25,8 +26,9 @@
 - Provides `overview.template.md`: a complete project-level spec template with all sections pre-structured (purpose, user stories, architecture diagrams, tech stack, data flow, cross-cutting concerns, features table, development setup, deployment, decisions, constraints, roadmap, changelog)
 - Provides `feature.template.md`: a two-tier feature spec template — **core sections** required in every spec (User Stories, Out of Scope, What It Does, Requirements, Error Cases, Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog) and **optional sections** each gated by an explicit *Include when* test (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes)
 - The Implementation section is a file map (path + one-line purpose) plus entry points — no mirrored signatures, props, types, or schemas
-- Both templates include instructional comments that guide spec authors on what content belongs in each section
+- Both spec templates include instructional comments that guide spec authors on what content belongs in each section
 - The feature template includes the `UserStory-[feature]-##` format reminder and acceptance criteria note
+- Provides `CLAUDE-SDD.md`: a CLAUDE.md starter for new projects that binds the SDD workflow — spec-first rule, spec-is-truth, sync-after-implementing, DRAFT confirmation, intent routing table, and validator/lint quality gates — with placeholders for project specifics
 
 ---
 
@@ -41,6 +43,7 @@
 | REQ-5 | The feature template must include the UserStory ID format reminder (`UserStory-[feature]-##`) and the acceptance criteria note about tightening requirements | Must |
 | REQ-6 | The overview template architecture section must include an ASCII diagram with component boxes and arrows | Should |
 | REQ-7 | The feature template's optional States & Transitions section must include State Machine and State Descriptions subsections | Should |
+| REQ-8 | CLAUDE-SDD.md must state the non-negotiable workflow rules (no feature work without a spec, spec is truth in disputes, sync after implementing, intent edits need confirmation, trivial-change exemption), an intent routing table, and the validator + markdownlint quality-gate commands | Must |
 
 ---
 
@@ -52,7 +55,8 @@
 skills/spec-driven-development/
 └── templates/
     ├── overview.template.md    ← used for: specs/overview.md or app_spec/overview.md
-    └── feature.template.md     ← used for: specs/features/*.md or app_spec/features/*.md
+    ├── feature.template.md     ← used for: specs/features/*.md or app_spec/features/*.md
+    └── CLAUDE-SDD.md           ← copied to a new project's root as CLAUDE.md
 ```
 
 ### Data Flow
@@ -99,6 +103,7 @@ Developer or agent wants to create a new spec
 | Project uses Go, not TypeScript | Template TypeScript examples replaced with Go equivalents; template is language-agnostic |
 | Overview spec has no external services | External AI row in tech stack deleted; layer responsibilities table adjusted |
 | Feature is very simple (1 user story, 2 requirements) | Core-only spec with no optional sections — complete by design, not thin |
+| Project already has a CLAUDE.md | CLAUDE-SDD.md's workflow sections are merged into the existing file rather than replacing it; project-specific content is preserved |
 
 ---
 
@@ -109,8 +114,21 @@ Developer or agent wants to create a new spec
 ```text
 skills/spec-driven-development/templates/
 ├── overview.template.md        [standalone; referenced by SKILL.md and bootstrap.md]
-└── feature.template.md         [standalone; referenced by SKILL.md and bootstrap.md]
+├── feature.template.md         [standalone; referenced by SKILL.md and bootstrap.md]
+└── CLAUDE-SDD.md               [standalone; copied into user projects as CLAUDE.md]
 ```
+
+### Template Structure: CLAUDE-SDD.md
+
+| Section | Purpose |
+|---------|---------|
+| Project | One-two sentence project description placeholder |
+| Spec-Driven Workflow (Core) | The core loop and five non-negotiable rules (spec-first, spec is truth, sync, DRAFT confirmation, trivial exemption) |
+| Spec Location | Spec directory layout and ID conventions |
+| When To Do What | Intent routing table binding situations to SDD actions |
+| Tests Trace to Specs | @spec headers, REQ coverage, anti-pattern pointers |
+| Quality Gates | Validator and markdownlint/prettier commands to run before committing spec changes |
+| Project Specifics | Build/test/lint command placeholders |
 
 ### Template Structure: overview.template.md
 
@@ -231,3 +249,4 @@ No active bugs.
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
 | 2026-06-11 | Documented two-tier template (core/optional with Include-when tests), file-map-only Implementation section, new Key Decisions; removed minimal-variant todo (delivered by two-tier design) | Spec synced to methodology v2 template |
+| 2026-06-11 | Added CLAUDE-SDD.md starter (UserStory-templates-04, REQ-8) | New CLAUDE.md starter binds SDD workflow into new projects |

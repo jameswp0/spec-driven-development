@@ -253,7 +253,8 @@ skills/spec-driven-development/
 ├── SKILL.md                 # Core methodology
 ├── templates/
 │   ├── overview.template.md # Project-level spec template
-│   └── feature.template.md  # Feature spec template
+│   ├── feature.template.md  # Feature spec template
+│   └── CLAUDE-SDD.md        # CLAUDE.md starter for new projects
 ├── workflows/
 │   ├── bootstrap.md         # Generate specs for existing codebase
 │   └── todos.md             # Todo analysis with YAGNI filtering

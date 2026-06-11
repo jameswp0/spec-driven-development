@@ -159,7 +159,7 @@ Files are versioned via git. Users who install by `cp` get a snapshot; they re-c
 | Skill | SDD methodology discoverable in every conversation, loaded on invocation | [features/skill.md](features/skill.md) |
 | Agent | Autonomous spec worker for heavy-lifting operations | [features/agent.md](features/agent.md) |
 | Commands | `/sdd` slash command entry point with context summarization | [features/commands.md](features/commands.md) |
-| Templates | Two-tier blank spec structures (overview, feature) | [features/templates.md](features/templates.md) |
+| Templates | Two-tier blank spec structures (overview, feature) plus CLAUDE.md starter for new projects | [features/templates.md](features/templates.md) |
 | Workflows | Complex operation guides: bootstrap, todo analysis | [features/workflows.md](features/workflows.md) |
 | Validator | Zero-dependency mechanical spec validation script | [features/validator.md](features/validator.md) |
 
@@ -252,3 +252,4 @@ cp commands/sdd.md ~/.claude/commands/
 | 2026-03-25 | Documented project-local install in INSTALL.md | Reduces install friction |
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
 | 2026-06-11 | Methodology v2 sync: added Validator feature, scripts/ layer, single /sdd command, validator step in health check flow, progressive-disclosure skill loading, amended no-runtime-code decision and constraints | Spec synced to v2.0.0 release |
+| 2026-06-11 | Templates feature now includes CLAUDE-SDD.md starter for new projects | New CLAUDE.md starter binds SDD workflow into new projects |

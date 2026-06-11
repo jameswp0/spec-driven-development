@@ -5,6 +5,8 @@
 > **Lifecycle:** this file lives in `specs/future/` while unbuilt. When implementation ships and tests pass: run the Merge Checklist below, then **delete this file** — git history is the archive.
 >
 > Work-item scoped, never feature-scoped: `future/tasks-filtering.md`, not `future/tasks.md`. For a brand-new feature, use `feature.template.md` instead (saved under `future/`, moved to `features/` on ship).
+>
+> **Granular:** sized to implement and merge in one cycle — split anything bigger. Distant roadmap items may start thin; tighten to full rigor before implementation starts.
 
 ---
 

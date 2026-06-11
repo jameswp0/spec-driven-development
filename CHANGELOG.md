@@ -10,7 +10,7 @@ Spec lifecycle: split specs by tense (opt-in convention).
 - Validator: future profile (missing sections WARN, not ERROR; all other content checks apply; story IDs join the global duplicate index), check 12 `future-spec-ref` (tests must not reference `future/` specs), check 13 Pipeline table links + `pipeline-orphan`.
 - `overview.template.md`: optional Pipeline section indexing future work items.
 - Health check step 5: lifecycle hygiene — flags shipped-but-unmerged future items.
-- CLAUDE-SDD.md, bootstrap, and todos workflows route through the lifecycle.
+- CLAUDE-SDD.md, bootstrap, and todos workflows route through the lifecycle, including roadmap-to-pipeline setup, the granularity rule (one mergeable work item per `future/` file; stages are metadata), and the readiness gradient (next item at full rigor; distant items thin, tightened before implementation).
 
 ## 2.0.0 — 2026-06-11
 

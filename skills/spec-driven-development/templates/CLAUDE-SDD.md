@@ -36,16 +36,20 @@ Spec → Implement → Test → Sync
 
 `specs/features/` divergence from code is always a bug. `ls specs/future/` is the open-work list. Tests reference `features/` paths only.
 
+**Granularity:** one feature per file in `features/`; one mergeable work item per file in `future/` (sized to implement and merge in one cycle — split anything bigger). Stages/milestones are metadata (the work item's Milestone field and the overview's Pipeline table), never the file unit.
+
 ## When To Do What
 
 | Situation | Action |
 |-----------|--------|
+| New project from a roadmap | Create `specs/overview.md` (with Pipeline table), then one granular work item per feature in `specs/future/` — next stage at full rigor, later stages thin |
 | New feature requested | Write the spec in `specs/future/`, confirm, then implement |
+| Starting a planned work item | Tighten its `specs/future/` spec to full rigor (stories, REQs, ≥3 errors/edges), confirm open questions, then implement |
 | Just finished implementing | Run tests; merge the future spec into `specs/features/` (Merge Checklist), delete it; changelog entry |
 | Test failing | Find the `@spec` reference; diagnose spec vs code vs test — fix the code unless intent changed |
 | Bug found | Add to the feature spec's Known Issues (`BUG-[feature]-##`, severity, links) |
 | Bug fixed | Remove the Known Issues row; add changelog entry |
-| "What should I work on?" | Read Future Considerations across specs; prioritize bugs > security > blockers > quick wins |
+| "What should I work on?" | Check `specs/future/` (the pipeline) first, then Future Considerations across specs; prioritize bugs > security > blockers > quick wins |
 | Periodically / before release | Run the spec health check (`/sdd check specs`) |
 
 ## Tests Trace to Specs

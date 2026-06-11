@@ -47,7 +47,7 @@
 | REQ-6 | The skill must include a table of contents linking to all major sections | Should |
 | REQ-7 | The skill must provide proactive bug detection triggers so Claude tracks bugs without waiting for explicit "report bug" requests | Should |
 | REQ-8 | The skill must defer detailed format examples to references/ files rather than duplicating content inline | Could |
-| REQ-9 | SKILL.md must define the opt-in Spec Lifecycle: `features/` is present tense (divergence is always a bug under the convention); all unbuilt work lives in `future/` (new feature → feature template; change → future template, work-item scoped); shipping = merge rows into the base spec + changelog entry + delete the future file | Must |
+| REQ-9 | SKILL.md must define the opt-in Spec Lifecycle: `features/` is present tense (divergence is always a bug under the convention); all unbuilt work lives in `future/` as granular work items (sized to implement and merge in one cycle; new feature → feature template; change → future template, work-item scoped) with a readiness gradient (next item at full rigor, distant items may start thin and are tightened before implementation); shipping = merge rows into the base spec + changelog entry + delete the future file | Must |
 
 ---
 
@@ -266,3 +266,4 @@ No active bugs.
 | 2026-06-11 | Corrected quality rule count phrasing (22 rules total, 19 enforced; CODE-RULE.11–13 out of scope) | Health check found internal inconsistency |
 | 2026-06-11 | Updated for methodology v2: 20 rules grouped by enforcement (17 enforced), 4-step health check with validator, two-tier templates, draft-and-confirm decision, progressive disclosure of skill loading | Spec synced to SKILL.md 2.0.0 |
 | 2026-06-11 | Added Spec Lifecycle section (REQ-9, UserStory-skill-04), 5-step health check with features/-only sync scoping and lifecycle hygiene (REQ-3), opt-in tense-split decision, version 2.1.0 | Merged spec-lifecycle work item (lifecycle's first execution) |
+| 2026-06-11 | Added granularity and readiness-gradient rules to the Spec Lifecycle (REQ-9) | Work items must be one-cycle sized; thin-then-tighten was implicit in the validator profile but unstated in prose |

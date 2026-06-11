@@ -23,7 +23,7 @@
 
 ## What It Does
 
-- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with 10 deterministic checks
+- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with 11 deterministic checks
 - Classifies every finding as ERROR (must fix) or WARN (input to the health check's sync/draft passes)
 - Prints findings grouped by file with line numbers and rule names, or as a JSON array with `--json`
 - Resolves the spec directory from the positional argument, falling back to `specs/`, then `app_spec/`
@@ -38,7 +38,7 @@
 |----|-------------|----------|
 | REQ-1 | The script must run on Node 18+ with zero dependencies beyond `node:fs` and `node:path` built-ins — no package.json, no install step | Must |
 | REQ-2 | ID checks: UserStory IDs must match `UserStory-[a-z0-9-]+-NN:` with no duplicates within or across files (ERROR) and no mixed feature codes per file (WARN); REQ IDs must match `REQ-<number>` with no duplicates (ERROR) and no numbering gaps (WARN); Known Issues bug IDs must match `BUG-[a-z0-9-]+-NN` (WARN) | Must |
-| REQ-3 | Structure checks: each feature spec must contain the required sections (User Stories, Out of Scope, Requirements, Error Cases, Edge Cases, Changelog — ERROR if missing); Error Cases and Edge Cases tables with fewer than 3 data rows are WARN; empty table cells anywhere are WARN | Must |
+| REQ-3 | Structure checks: each feature spec must contain the required sections (User Stories, Out of Scope, Requirements, Error Cases, Edge Cases, Changelog — ERROR if missing); Error Cases and Edge Cases tables with fewer than 3 data rows are WARN; empty table cells anywhere are WARN; backticked paths containing "path/to" are WARN (bare prose mentions are not flagged) | Must |
 | REQ-4 | Link hygiene checks: every overview Features-table link must resolve to an existing file (ERROR); feature specs not linked from the Features table are reported as orphans (WARN) | Must |
 | REQ-5 | `@spec` references in test files (`*.spec.*` / `*.test.*` under the working directory, excluding node_modules and dotfiles) must point to an existing spec file containing the referenced UserStory ID(s) (ERROR) | Must |
 | REQ-6 | Exit code must be 1 if any ERROR finding exists, 0 otherwise | Must |
@@ -57,7 +57,7 @@ Spec Health Check — step 1
     → node skills/spec-driven-development/scripts/validate-specs.mjs [spec-dir]
     → resolve spec dir (arg → specs/ → app_spec/)
     → load overview.md + features/*.md (fence-aware)
-    → run checks 1–10 (IDs, sections, tables, links, @spec refs)
+    → run checks 1–11 (IDs, sections, tables, placeholder paths, links, @spec refs)
     → findings reported (grouped by file, or --json)
     → ERRORs fixed mechanically; WARNs feed health check steps 2–3
 ```
@@ -81,6 +81,7 @@ Spec Health Check — step 1
 | Scenario | Expected Behavior |
 |----------|-------------------|
 | ASCII diagrams or example tables inside code fences | Ignored — fence-aware parsing skips all fenced lines, including the fence delimiters |
+| Prose mentions "path/to" without backticks (e.g. describing the rule itself) | Not flagged — `placeholder-path` matches backticked occurrences only |
 | Project has no test files | The @spec check (rule 10) is skipped silently; no warning emitted |
 | Comma-separated IDs in one @spec header | Each ID is validated individually against the referenced spec file |
 | features/ directory missing or empty | WARN `no-features`; overview checks still run |
@@ -95,7 +96,7 @@ Spec Health Check — step 1
 
 | Path | Purpose |
 |------|---------|
-| `skills/spec-driven-development/scripts/validate-specs.mjs` | The entire validator: fence-aware Markdown helpers, 10 checks, report/JSON output |
+| `skills/spec-driven-development/scripts/validate-specs.mjs` | The entire validator: fence-aware Markdown helpers, 11 checks, report/JSON output |
 
 ### Entry Points
 
@@ -152,3 +153,4 @@ No active bugs.
 | Date | Change | Reason |
 |------|--------|--------|
 | 2026-06-11 | Initial spec | validate-specs.mjs shipped in methodology v2 |
+| 2026-06-11 | Added check 11: placeholder-path (backticked "path/to", WARN) | Gap found during v2 behavioral testing |

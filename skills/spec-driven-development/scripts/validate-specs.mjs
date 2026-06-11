@@ -22,6 +22,8 @@
  *   9. WARN   orphan-spec        files in features/ not linked from overview's Features table
  *  10. ERROR  broken-spec-ref    @spec references in test files must point to an existing spec
  *                                file containing the referenced UserStory ID(s)
+ *  11. WARN   placeholder-path   backticked path containing `path/to` — template placeholder
+ *                                never replaced with a real path (fix via CODE-RULE.4)
  *
  * Usage: node validate-specs.mjs [spec-dir] [--json]
  *   spec-dir defaults to `specs/`, falling back to `app_spec/` (relative to cwd).
@@ -219,6 +221,18 @@ function checkEmptyCells(doc) {
   }
 }
 
+// Rule 11: backticked placeholder paths (`path/to/...`) left in from templates.
+// Backticks only — bare "path/to" prose (e.g. describing the rule itself) is fine.
+function checkPlaceholderPaths(doc) {
+  for (let i = 0; i < doc.lines.length; i++) {
+    if (doc.inFence[i]) continue;
+    for (const m of doc.lines[i].matchAll(/`([^`]*path\/to[^`]*)`/g)) {
+      add("WARN", doc.file, i + 1, "placeholder-path",
+        `placeholder path \`${m[1]}\` — replace with a real, verified path`);
+    }
+  }
+}
+
 // Rules 8 + 9: overview Features table links resolve; no orphan feature specs
 function checkOverviewLinks(doc, featureFiles) {
   const range = sectionRange(doc, "## Features");
@@ -322,6 +336,7 @@ function main() {
     const doc = loadDoc(overviewPath);
     checkedFiles.push(overviewPath);
     checkEmptyCells(doc);
+    checkPlaceholderPaths(doc);
     checkOverviewLinks(doc, featureFiles);
   } else {
     add("ERROR", overviewPath, null, "missing-overview", "overview.md not found in spec directory");
@@ -332,6 +347,7 @@ function main() {
     checkedFiles.push(file);
     checkFeatureSpec(doc, storyIndex);
     checkEmptyCells(doc);
+    checkPlaceholderPaths(doc);
   }
   if (featureFiles.length === 0) {
     add("WARN", featuresDir, null, "no-features", "no feature specs found in features/");

@@ -14,7 +14,7 @@ Methodology v2. Breaking changes to rule numbering and template structure.
 
 ### Added
 
-- `scripts/validate-specs.mjs` — zero-dependency deterministic validator (ID formats/uniqueness, core sections, table completeness, Features-table links, orphan specs, `@spec` test references). Health check runs it first; the model handles only judgment calls.
+- `scripts/validate-specs.mjs` — zero-dependency deterministic validator (ID formats/uniqueness, core sections, table completeness, placeholder paths, Features-table links, orphan specs, `@spec` test references). Health check runs it first; the model handles only judgment calls.
 - `version` field in SKILL.md frontmatter.
 
 ### Removed

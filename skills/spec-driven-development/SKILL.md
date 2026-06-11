@@ -192,7 +192,7 @@ When user says "check specs", "health", or after significant work:
 
 1. **Mechanical pass:** if Node.js is available, run the bundled validator from the project root:
    `node [skill-dir]/scripts/validate-specs.mjs [spec-dir]`
-   It deterministically reports ID format/uniqueness violations, missing core sections, thin error/edge tables, empty cells, broken Features-table links, orphan feature specs, and broken `@spec` test references. Fix the ERRORs it reports; treat WARNs as input to steps 2–3. If Node is unavailable, perform the same checks manually with Glob/Grep.
+   It deterministically reports ID format/uniqueness violations, missing core sections, thin error/edge tables, empty cells, placeholder paths, broken Features-table links, orphan feature specs, and broken `@spec` test references. Fix the ERRORs it reports; treat WARNs as input to steps 2–3. If Node is unavailable, perform the same checks manually with Glob/Grep.
 2. **Sync pass (auto-fix):** Glob (`specs/**/*.md`, `app_spec/**/*.md`); for each spec verify references exist (CODE-RULE.3) and replace placeholder paths (CODE-RULE.4).
 3. **Draft pass (confirm before applying):** for vague descriptions (CODE-RULE.6), empty intent cells (CODE-RULE.5), and fewer than 3 error/edge cases (CODE-RULE.7–8) — draft the missing content, present it to the user, and apply only what they approve.
 4. **Link hygiene:** every feature spec is linked from the overview's Features table, and every Features-table link resolves. Report orphans and fix broken links.

@@ -130,7 +130,16 @@ For each spec:
 - [ ] Error cases covered
 - [ ] No empty sections
 
-## Step 6: Report
+## Step 6: Bind the Workflow (CLAUDE.md)
+
+Specs without workflow binding go stale — make every future session spec-driven:
+
+1. **No CLAUDE.md in the project:** copy `templates/CLAUDE-SDD.md` to the project root as `CLAUDE.md` and fill its placeholders from what bootstrap just learned — project description (Step 1), build/test/lint commands (README, package.json scripts, Makefile).
+2. **CLAUDE.md already exists:** merge the starter's workflow sections into it (Spec-Driven Workflow rules, Spec Location, When To Do What, Quality Gates). Preserve all existing project content; **confirm with the user before editing** their CLAUDE.md.
+
+If the project plans phased delivery, also create `specs/future/` work items for known upcoming features (granular, thin is fine) and a Pipeline table in the overview.
+
+## Step 7: Report
 
 ```
 ## Bootstrap Complete
@@ -138,6 +147,7 @@ For each spec:
 **Created:**
 - Overview: [spec-dir]/overview.md
 - Features: X specs
+- CLAUDE.md: created from CLAUDE-SDD starter (or: workflow sections merged)
 
 **Features Documented:**
 | Feature | User Stories | Requirements | Errors |
@@ -149,6 +159,7 @@ For each spec:
 **Next Steps:**
 1. Review specs for accuracy
 2. Fill gaps as you find them
+3. New work now flows spec-first via CLAUDE.md (specs/future/ → implement → merge)
 ```
 
 ## Tips

@@ -11,6 +11,7 @@ Spec lifecycle: split specs by tense (opt-in convention).
 - `overview.template.md`: optional Pipeline section indexing future work items.
 - Health check step 5: lifecycle hygiene — flags shipped-but-unmerged future items.
 - CLAUDE-SDD.md, bootstrap, and todos workflows route through the lifecycle, including roadmap-to-pipeline setup, the granularity rule (one mergeable work item per `future/` file; stages are metadata), and the readiness gradient (next item at full rigor; distant items thin, tightened before implementation).
+- Bootstrap step 6 binds the workflow: creates the project's CLAUDE.md from the CLAUDE-SDD starter (placeholders filled from bootstrap findings) or merges its sections into an existing CLAUDE.md with user confirmation; the starter routes "existing codebase, no specs" back to bootstrap.
 
 ## 2.0.0 — 2026-06-11
 

@@ -42,6 +42,7 @@ Spec → Implement → Test → Sync
 
 | Situation | Action |
 |-----------|--------|
+| Existing codebase, no specs yet | Run the bootstrap workflow (skill's `workflows/bootstrap.md`) — creates overview + feature specs and binds this file |
 | New project from a roadmap | Create `specs/overview.md` (with Pipeline table), then one granular work item per feature in `specs/future/` — next stage at full rigor, later stages thin |
 | New feature requested | Write the spec in `specs/future/`, confirm, then implement |
 | Starting a planned work item | Tighten its `specs/future/` spec to full rigor (stories, REQs, ≥3 errors/edges), confirm open questions, then implement |

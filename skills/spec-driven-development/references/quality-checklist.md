@@ -74,7 +74,7 @@ Before finishing any spec work, verify the following items. These map to CODE-RU
 
 ## Project Organization
 
-- [ ] All .md files in specs/ (or app_spec/), or legitimate exceptions: README.md, CLAUDE.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE.md, docs/**
+- [ ] All .md files in specs/ (or app_spec/), or legitimate exceptions: README.md, INSTALL.md, CLAUDE.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE.md, docs/**
 - [ ] No .txt files in project root or source directories
 - [ ] Stray .md/.txt files identified and confirmed with user before deleting
 

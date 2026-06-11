@@ -23,7 +23,7 @@
 ## What It Does
 
 - Loads the full SDD methodology inline into Claude's conversation context via `~/.claude/skills/spec-driven-development/SKILL.md`
-- Defines 19 quality rules (CODE-RULE.1–13, TEST-RULE.1–9) that prevent AI hallucination in specs and tests
+- Defines 22 quality rules (`CODE-RULE.*` and `TEST-RULE.*`) that prevent AI hallucination in specs and tests — 19 are enforced or auto-fixed by the agent; the 3 code-review rules (CODE-RULE.11–13) are out of the spec agent's scope
 - Provides intent detection table so Claude routes requests to the right action without overthinking
 - Documents the 5-step flow: Understand → Spec → Implement → Test → Reflect
 - Defines the Spec Health Check procedure (3 steps: Glob all specs, verify each, report stray files)
@@ -146,7 +146,7 @@ Not applicable — this feature is a Markdown file, not a software component.
 | Section | Purpose | Lines (approx) |
 |---------|---------|----------------|
 | First: Read Templates | Routing table for which file to read before each task | 10 |
-| Quality Rules | 19 rules with what/why/enforced/checklist mapping | 120 |
+| Quality Rules | 22 rules (19 enforced) with what/why/enforced/checklist mapping | 120 |
 | Principle | Core philosophy statement | 10 |
 | Intent Detection | Routing table + Spec Health Check procedure | 30 |
 | The Flow | 5-step methodology | 60 |
@@ -226,3 +226,4 @@ No active bugs.
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Updated SKILL.md line count approximation from ~400 to ~500 | Health check found stale approximation (actual: 494 lines) |
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
+| 2026-06-11 | Corrected quality rule count phrasing (22 rules total, 19 enforced; CODE-RULE.11–13 out of scope) | Health check found internal inconsistency |

@@ -477,8 +477,10 @@ skills/spec-driven-development/
 │   ├── bootstrap.md         # Generate specs for existing codebase
 │   └── todos.md             # Todo analysis with YAGNI filtering
 └── references/
-    ├── e2e-test-format.md   # E2E test header format
-    └── examples.md          # Good/bad spec examples
+    ├── e2e-test-format.md    # E2E test header format
+    ├── examples.md           # Good/bad spec examples
+    ├── quality-checklist.md  # Full quality checklist
+    └── test-anti-patterns.md # LLM test anti-patterns
 
 agents/
 └── spec-driven-development.md  # Agent definition

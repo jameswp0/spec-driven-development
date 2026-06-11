@@ -6,8 +6,9 @@
 cp -r skills/spec-driven-development ~/.claude/skills/
 cp agents/spec-driven-development.md ~/.claude/agents/
 cp commands/sdd.md ~/.claude/commands/
-cp commands/spec-driven-development.md ~/.claude/commands/
 ```
+
+The `cp -r skills/spec-driven-development` copy includes the `scripts/` directory (the spec validator).
 
 ## Project-local
 
@@ -15,7 +16,6 @@ cp commands/spec-driven-development.md ~/.claude/commands/
 cp -r skills/spec-driven-development .claude/skills/
 cp agents/spec-driven-development.md .claude/agents/
 cp commands/sdd.md .claude/commands/
-cp commands/spec-driven-development.md .claude/commands/
 ```
 
 ## Update
@@ -31,3 +31,5 @@ Start a Claude Code session and run:
 ```
 
 The agent should respond with spec-driven guidance.
+
+Optionally verify the validator: `node ~/.claude/skills/spec-driven-development/scripts/validate-specs.mjs specs`

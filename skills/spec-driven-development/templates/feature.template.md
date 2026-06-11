@@ -2,6 +2,13 @@
 
 > One-line description of what this feature enables.
 
+> **How to use this template — two tiers:**
+>
+> - **CORE sections** (required for every feature spec): User Stories, Out of Scope, What It Does, Requirements, Error Cases, Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog.
+> - **OPTIONAL sections** (marked with an *Include when* test): add only when the test passes; otherwise delete the section entirely.
+>
+> A simple feature with a complete core is a complete spec. Don't pad optional sections to look thorough.
+
 ---
 
 ## User Stories
@@ -50,6 +57,8 @@ Testable statements. Each should map to a test case.
 
 ## Architecture
 
+> **Optional** — *Include when* the feature spans more than one component or system. Delete otherwise.
+
 ### Component Diagram
 
 ```
@@ -69,7 +78,9 @@ User Action → Component → Context/Hook → API → Backend → Database
                               Response → UI Update
 ```
 
-### Sequence Diagram (for complex flows)
+### Sequence Diagram
+
+> *Include when* three or more systems participate in a single flow.
 
 ```
 User        Frontend        API         Backend
@@ -86,6 +97,8 @@ User        Frontend        API         Backend
 
 ## Data Model
 
+> **Optional** — *Include when* the feature owns persisted entities or non-obvious data shapes. Delete otherwise.
+
 Shapes used by this feature. Field: type - description.
 
 ### [Model Name]
@@ -94,21 +107,19 @@ Shapes used by this feature. Field: type - description.
 |-------|------|-------------|
 | id | string | Unique identifier |
 | field1 | string | Description |
-| field2 | number | Description |
-| field3 | boolean | Description |
 | createdAt | timestamp | When created |
-| updatedAt | timestamp | When last modified |
 
 ### Relationships
 
 ```
 Model A (1) ──────── (n) Model B
-Model B (1) ──────── (n) Model C
 ```
 
 ---
 
 ## States & Transitions
+
+> **Optional** — *Include when* the feature has more than two states or non-obvious transitions. Delete otherwise.
 
 ### State Machine
 
@@ -142,8 +153,6 @@ Model B (1) ──────── (n) Model C
 | Network failure | No connection | Toast: "Connection lost" | Auto-retry 3x, then manual |
 | Validation error | Invalid input | Inline error message | Fix input, resubmit |
 | Server error | Backend failure | Toast: "Something went wrong" | Retry button |
-| Timeout | Slow response | Toast: "Request timed out" | Auto-retry |
-| Auth error | Session expired | Redirect to login | Re-authenticate |
 
 ---
 
@@ -156,137 +165,40 @@ Behaviors that aren't obvious. Document what happens.
 | Empty input | Submit disabled, no error shown |
 | Rapid clicks | Debounced, only first action fires |
 | Concurrent edits | Last write wins, no conflict UI |
-| Offline action | Queued, syncs when online |
-| Refresh mid-action | State lost, user must retry |
-| Very long content | Truncated with "show more" |
 
 ---
 
 ## API Endpoints
 
-Endpoints this feature uses.
+> **Optional** — *Include when* the feature exposes or consumes HTTP endpoints. Delete otherwise.
 
 | Method | Endpoint | Request | Response | Description |
 |--------|----------|---------|----------|-------------|
 | GET | /resource | - | Resource[] | List all |
-| GET | /resource/:id | - | Resource | Get one |
 | POST | /resource | { field1, field2 } | Resource | Create |
-| PATCH | /resource/:id | { field1? } | Resource | Update |
-| DELETE | /resource/:id | - | - | Delete |
 
 ---
 
 ## Implementation
 
-### File Dependency Graph
+> **Optional** — add after implementation. Delete until then.
+>
+> **File map only.** The spec records *where and why*; the code records *what and how*. Do not mirror signatures, props, types, or schemas into the spec — they drift the moment code changes, and the code is already their source of truth.
 
-```
-src/features/[feature]/
-├── [MainComponent].tsx          [uses: useFeature, ChildComponent]
-├── components/
-│   ├── [ChildComponent].tsx     [uses: types]
-│   └── [OtherComponent].tsx     [uses: hooks]
-├── hooks/
-│   ├── useFeature.ts           [uses: api, context]
-│   └── useOtherHook.ts         [uses: types]
-├── api/
-│   ├── client.ts               [uses: fetch, types]
-│   └── types.ts                [pure types]
-└── store/
-    ├── FeatureContext.tsx      [uses: reducer]
-    └── reducer.ts              [uses: types]
+### File Map
 
-backend/
-├── handlers/
-│   └── feature.go              [uses: models, services]
-├── models/
-│   └── feature.go              [uses: database]
-└── services/
-    └── feature_service.go      [uses: models, external APIs]
-```
+| Path | Purpose |
+|------|---------|
+| `src/features/[feature]/[Main].tsx` | [One-line purpose] |
+| `src/features/[feature]/hooks/useFeature.ts` | [One-line purpose] |
+| `backend/handlers/[feature].go` | [One-line purpose] |
 
-### Frontend Files
+### Entry Points
 
-#### Core Components
+Where this feature starts — routes, handlers, commands, scheduled jobs.
 
-| Component | File | Purpose | Props | State |
-|-----------|------|---------|-------|-------|
-| [Component] | `src/features/[feature]/Component.tsx` | [Purpose] | `prop: type` | none / `stateVar: type` |
-| [Child] | `src/features/[feature]/components/Child.tsx` | [Purpose] | `prop: type` | `stateVar: type` |
-
-#### Hooks & State Management
-
-| Hook | File | Signature | Purpose | Returns |
-|------|------|-----------|---------|---------|
-| useFeature | `hooks/useFeature.ts` | `(params: Type) => ReturnType` | [Purpose] | `{ key: type }` |
-| useOther | `hooks/useOther.ts` | `() => Type` | [Purpose] | `type` |
-
-**Context:**
-- Provider: `FeatureContext.tsx`
-- State shape: `{ field: type }`
-- Actions: `ACTION_TYPE`, `OTHER_ACTION`
-
-#### API Layer
-
-| Function | File | Signature | HTTP Details |
-|----------|------|-----------|--------------|
-| apiFunction | `api/client.ts` | `async (params: Type) => Promise<ReturnType>` | `METHOD /api/endpoint`<br>Body: `{ field: type }` |
-| otherCall | `api/client.ts` | `async (id: string) => Promise<Type>` | `GET /api/resource/${id}` |
-
-#### Type Definitions
-
-| Type/Interface | File | Definition |
-|----------------|------|------------|
-| [Type] | `api/types.ts` | `{ field: type, other: type }` |
-| [Interface] | `api/types.ts` | `{ method(): returnType }` |
-
-### Backend Files
-
-#### HTTP Handlers
-
-| Handler | File | Route | Method | Request | Response |
-|---------|------|-------|--------|---------|----------|
-| HandleAction | `handlers/feature.go` | `/api/resource` | POST | `{ field: type }` | `Resource` (201) |
-| HandleGet | `handlers/feature.go` | `/api/resource/:id` | GET | - | `Resource` (200) |
-
-**Auth:** All routes require JWT token in `Authorization: Bearer <token>` header
-
-#### Models
-
-| Model | File | Purpose | Key Methods |
-|-------|------|---------|-------------|
-| [Model] | `models/feature.go` | [Purpose] | `Create() error`<br>`GetByID(id string) (*Model, error)`<br>`Update() error` |
-
-**Model Struct:**
-
-```go
-type [Model] struct {
-    ID        string
-    Field     string
-    CreatedAt time.Time
-}
-```
-
-#### Services
-
-| Service | File | Purpose | Key Functions |
-|---------|------|---------|---------------|
-| [Service] | `services/feature_service.go` | [Purpose] | `ProcessAction(ctx context.Context, params Type) (*Result, error)` |
-
-### Database Schema
-
-#### [table_name]
-
-| Column | Type | Constraints |
-|--------|------|-------------|
-| id | TEXT | PRIMARY KEY |
-| field_name | TEXT | NOT NULL |
-| other_field | INTEGER | NOT NULL, DEFAULT 0 |
-| created_at | TIMESTAMP | NOT NULL, DEFAULT CURRENT_TIMESTAMP |
-
-**Indexes:**
-- `idx_[table]_[column]` ON (column)
-- `idx_[table]_[composite]` ON (col1, col2)
+- `[METHOD /api/route]` → `backend/handlers/[feature].go`
+- `[/page-route]` → `src/features/[feature]/[Main].tsx`
 
 ---
 
@@ -299,6 +211,7 @@ Architectural choices and their rationale.
 **Context:** What problem were we solving?
 
 **Options Considered:**
+
 1. Option A - pros/cons
 2. Option B - pros/cons
 
@@ -308,36 +221,21 @@ Architectural choices and their rationale.
 
 ---
 
-### Decision 2: [Choice Made]
-
-**Context:** ...
-
-**Decision:** ...
-
----
-
 ## Testing Notes
 
-Guidance for testing this feature.
+> **Optional** — *Include when* the test strategy isn't obvious from the Requirements and user stories. Delete otherwise.
 
 ### Critical Paths (E2E Tests)
 
 E2E tests for user stories that span multiple systems:
 
 1. UserStory-[feature]-01: [Journey description] → covers REQ-1, REQ-2
-2. UserStory-[feature]-02: [Journey description] → covers REQ-3, REQ-5
 
 ### Unit Tests
 
 Requirements testable in isolation:
 
 - REQ-4: [Can be unit tested because...]
-- REQ-6: [Can be unit tested because...]
-
-### Test Data Requirements
-
-- [What seed data is needed]
-- [What state must exist]
 
 ### Not Worth Testing
 
@@ -348,7 +246,7 @@ Requirements testable in isolation:
 
 ## Known Issues
 
-Active bugs and defects for this feature. Remove rows when fixed and verified.
+Active bugs and defects for this feature. Remove rows when fixed and verified. If none: "No active bugs."
 
 | ID | Description | Severity | Status | Links |
 |----|-------------|----------|--------|-------|
@@ -364,7 +262,6 @@ Active bugs and defects for this feature. Remove rows when fixed and verified.
 Known limitations or planned improvements. Not commitments.
 
 - [ ] Potential enhancement 1
-- [ ] Potential enhancement 2
 - [ ] Known limitation to address
 
 ---
@@ -374,4 +271,3 @@ Known limitations or planned improvements. Not commitments.
 | Date | Change | Reason |
 |------|--------|--------|
 | YYYY-MM-DD | Initial spec | Feature created |
-| YYYY-MM-DD | Added X | Requirement change |

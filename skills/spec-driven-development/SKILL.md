@@ -1,6 +1,7 @@
 ---
 name: spec-driven-development
 description: Spec-driven development methodology. Write specs before building, update after implementing, check against when tests fail, log bugs in, surface todos when idle. Use when bootstrapping a codebase, running a spec health check, generating tests from requirements, or writing a feature spec. Specs define intent before code exists and connect intent, code, and tests.
+version: 2.0.0
 ---
 
 > **Spec location:** Typically `specs/` or `app_spec/`. Adapt paths to your project.
@@ -35,89 +36,79 @@ description: Spec-driven development methodology. Write specs before building, u
 
 **Feature specs**: One per feature. User stories, requirements, states, errors, decisions.
 
-Templates show the ideal structure. Use them as a guide, not a rigid checklist — include what's useful, skip what's not relevant.
+Templates are two-tier: **core sections** are required in every spec; **optional sections** carry an *Include when* test — add them only when the test passes, delete them otherwise. A simple feature with a complete core is a complete spec.
 
 ---
 
 ## Quality Rules
 
-The agent enforces 19 quality rules to prevent AI guessing instead of verifying reality. These rules map to the Quality Checklist below.
+20 rules prevent AI guessing instead of verifying reality. They map to the Quality Checklist below and are grouped by **how they are enforced**:
 
-### Code & Spec Quality Rules
+| Group | Ground truth | Enforcement |
+|-------|-------------|-------------|
+| PROCESS | — | Followed during execution, every time |
+| SYNC | The codebase | Auto-fixed in health check without confirmation |
+| DRAFT | The user's intent | Drafted in health check; applied only after user confirms |
+| REVIEW | — | Code-review concerns; out of the spec agent's scope |
+| TEST | Code + spec | Test Health Check (see below) |
 
-**CRITICAL - Process Rules (enforced during execution):**
+The spec agent enforces 17 rules: CODE-RULE.1–8 and TEST-RULE.1–9.
+
+> **Why SYNC and DRAFT are different:** SYNC rules correct facts the codebase already proves (a path exists or it doesn't) — safe to auto-fix. DRAFT rules govern *intent*. If the agent silently sharpened vague wording, filled empty cells, or added error cases to meet a minimum, the AI would be writing the requirements it is supposed to be constrained by. So the health check drafts the content, shows it, and the user approves or edits before it lands in the spec.
+
+> **v2 renumbering:** v1 numbering had a gap (CODE-RULE.4) and a collision (11 vs 11-edge). Mapping: old 1→1, 9→2, 2→3, 6→4, 7→5, 8→6, 10→7, 11-edge→8. Old 3 (Extract Signatures) and 5 (Validate Schema) are retired — specs hold a file map, not mirrored signatures/schemas (see Implementation Documentation), so existence checking (CODE-RULE.3) is the only sync needed. Old 11/12/13 → REVIEW-RULE.1/2/3.
+
+### PROCESS rules (enforced during execution)
 
 **CODE-RULE.1: Read Before Write**
-- **What:** Must Read file before Edit/Write
-- **Why:** Prevents inventing signatures or paths
-- **Enforced:** Required before any Edit/Write operation
-- **Checklist:** "All file paths in tables exist in codebase"
+- **What:** Must Read a file before Edit/Write
+- **Why:** Prevents inventing content or paths
+- **Checklist:** "All file paths referenced in spec exist in codebase"
 
-**CODE-RULE.9: Match Existing Patterns**
+**CODE-RULE.2: Match Existing Patterns**
 - **What:** Must Grep for patterns before introducing new ones
 - **Why:** Maintains codebase consistency
-- **Enforced:** Required before documenting new patterns
 - **Checklist:** "Patterns match existing codebase"
 
-**AUTO-FIXED - Validation Rules (enforced in health check):**
+### SYNC rules (auto-fixed in health check)
 
-> **What "auto-fix" means:** During the Spec Health Check, the agent reads the affected file, makes the correction in-place using Edit, and reports what was changed. Auto-fixed items do not require user confirmation (unlike stray file deletion, which always requires confirmation).
-
-**CODE-RULE.2: Verify Existence**
-- **What:** Glob/Grep confirms files/functions exist before referencing
+**CODE-RULE.3: Verify References**
+- **What:** Every file path, route, and named symbol referenced in a spec exists in the codebase (Glob/Grep to confirm)
 - **Why:** Prevents references to non-existent code
-- **Enforced:** Auto-fixed in health check Step 2
-- **Checklist:** "All file paths in tables exist in codebase"
+- **Checklist:** "All file paths referenced in spec exist in codebase"
 
-**CODE-RULE.3: Extract Actual Signatures**
-- **What:** Read and copy real signatures from code
-- **Why:** Prevents invented function signatures
-- **Enforced:** Auto-fixed in health check Step 2
-- **Checklist:** "Component/Handler signatures match actual code"
-
-> **Note:** CODE-RULE.4 is intentionally absent — the numbering was reserved for a rule that was removed during revision (file timestamp checking, which breaks on git checkout).
-
-**CODE-RULE.5: Validate Schema**
-- **What:** Read migrations, sync database schema
-- **Why:** Ensures schema docs match reality
-- **Enforced:** Auto-fixed in health check Step 2
-- **Checklist:** "Database schema matches migrations"
-
-**CODE-RULE.6: No Placeholder Paths**
+**CODE-RULE.4: No Placeholder Paths**
 - **What:** Replace `path/to/file` with actual verified paths
 - **Why:** Prevents fake documentation
-- **Enforced:** Auto-fixed in health check Step 3
 - **Checklist:** "No placeholder file paths"
 
-**CODE-RULE.7: No Empty Cells**
-- **What:** Parse tables, fill missing values
-- **Why:** Ensures complete documentation
-- **Enforced:** Auto-fixed in health check Step 3
+### DRAFT rules (proposed in health check; user confirms before the spec is edited)
+
+**CODE-RULE.5: No Empty Cells**
+- **What:** Parse tables, draft missing values; cells derivable from code may be auto-filled under CODE-RULE.3
+- **Why:** Ensures complete documentation without inventing intent
 - **Checklist:** "Table columns complete (no empty cells)"
 
-**CODE-RULE.8: No Vague Descriptions**
-- **What:** Replace "handles errors" with specific behavior
+**CODE-RULE.6: No Vague Descriptions**
+- **What:** Draft a specific replacement for "handles errors"-style wording
 - **Why:** Makes specs actionable and testable
-- **Enforced:** Auto-fixed in health check Step 3
 - **Checklist:** "No vague descriptions"
 
-**CODE-RULE.10: Minimum 3 Errors**
-- **What:** Add error cases if <3
-- **Why:** Ensures thorough error coverage
-- **Enforced:** Auto-fixed in health check Step 3
+**CODE-RULE.7: Minimum 3 Error Cases**
+- **What:** If <3, draft candidate error cases for the user to accept, edit, or reject
+- **Why:** Ensures thorough error coverage — without quota-filling the spec with invented failures
 - **Checklist:** "At least 3 error cases documented"
 
-**CODE-RULE.11-edge: Minimum 3 Edge Cases**
-- **What:** Add edge cases if <3
+**CODE-RULE.8: Minimum 3 Edge Cases**
+- **What:** If <3, draft candidate edge cases for the user to accept, edit, or reject
 - **Why:** Ensures behavior under unusual inputs is specified
-- **Enforced:** Auto-fixed in health check Step 2
 - **Checklist:** "At least 3 edge cases documented"
 
-**OUT OF SCOPE - Code Review Rules (not enforced by spec agent):**
+### REVIEW rules (out of scope for the spec agent)
 
-- **CODE-RULE.11: Justify Dependencies** — every new dependency must be justified; enforced in code review
-- **CODE-RULE.12: Simplest First** — choose simplest solution that works; enforced by architectural judgment
-- **CODE-RULE.13: Delete Before Adding** — remove dead code before adding new; enforced by code reviewer
+- **REVIEW-RULE.1: Justify Dependencies** — every new dependency must be justified; enforced in code review
+- **REVIEW-RULE.2: Simplest First** — choose simplest solution that works; enforced by architectural judgment
+- **REVIEW-RULE.3: Delete Before Adding** — remove dead code before adding new; enforced by code reviewer
 
 ### Test Quality Rules
 
@@ -199,9 +190,12 @@ Don't overthink routing. Understand what they need, do it.
 
 When user says "check specs", "health", or after significant work:
 
-1. Use Glob (`specs/**/*.md`, `app_spec/**/*.md`) to find all spec files
-2. For each spec: verify file paths exist (CODE-RULE.2), extract actual signatures (CODE-RULE.3), fix placeholder paths (CODE-RULE.6), fill empty cells (CODE-RULE.7), make descriptions specific (CODE-RULE.8), ensure ≥3 error cases (CODE-RULE.10), ensure ≥3 edge cases (CODE-RULE.11-edge)
-3. Use Glob to identify stray `.md`/`.txt` files outside `specs/`/`app_spec/` — report what was found and **confirm with user before deleting**. Exceptions (never flag): `README.md`, `INSTALL.md`, `CLAUDE.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `LICENSE.md`, `docs/**`
+1. **Mechanical pass:** if Node.js is available, run the bundled validator from the project root:
+   `node [skill-dir]/scripts/validate-specs.mjs [spec-dir]`
+   It deterministically reports ID format/uniqueness violations, missing core sections, thin error/edge tables, empty cells, broken Features-table links, orphan feature specs, and broken `@spec` test references. Fix the ERRORs it reports; treat WARNs as input to steps 2–3. If Node is unavailable, perform the same checks manually with Glob/Grep.
+2. **Sync pass (auto-fix):** Glob (`specs/**/*.md`, `app_spec/**/*.md`); for each spec verify references exist (CODE-RULE.3) and replace placeholder paths (CODE-RULE.4).
+3. **Draft pass (confirm before applying):** for vague descriptions (CODE-RULE.6), empty intent cells (CODE-RULE.5), and fewer than 3 error/edge cases (CODE-RULE.7–8) — draft the missing content, present it to the user, and apply only what they approve.
+4. **Link hygiene:** every feature spec is linked from the overview's Features table, and every Features-table link resolves. Report orphans and fix broken links.
 
 ---
 
@@ -279,14 +273,14 @@ If something feels wrong, backtrack. Fixing a spec is cheaper than fixing code.
 
 Critical items before finishing:
 
-- [ ] No empty sections or placeholders (CODE-RULE.7)
-- [ ] No vague descriptions — specific and observable (CODE-RULE.8)
+- [ ] No empty sections or placeholders (CODE-RULE.5)
+- [ ] No vague descriptions — specific and observable (CODE-RULE.6)
 - [ ] User stories have unique IDs in correct format: `UserStory-[feature]-##`
 - [ ] Requirements have unique IDs (`REQ-##`, sequential within this feature spec) and Priority (Must/Should/Could)
-- [ ] At least 3 error cases: Error, Cause, User Sees, Recovery (CODE-RULE.10)
-- [ ] At least 3 edge cases: Scenario, Expected Behavior
-- [ ] All file paths verified to exist in codebase (CODE-RULE.2, 6)
-- [ ] Component/Handler signatures match actual code (CODE-RULE.3)
+- [ ] At least 3 error cases: Error, Cause, User Sees, Recovery (CODE-RULE.7)
+- [ ] At least 3 edge cases: Scenario, Expected Behavior (CODE-RULE.8)
+- [ ] All file paths verified to exist in codebase (CODE-RULE.3, 4)
+- [ ] Implementation section is a file map only — no mirrored signatures/schemas
 - [ ] Each UserStory-* maps to E2E test (TEST-RULE.5)
 - [ ] Spec matches current implementation; changelog entry added
 
@@ -434,11 +428,13 @@ After generating tests, run Test Health Check to validate test quality and preve
 
 ## Implementation Documentation
 
-Document public APIs (exported functions, components, hooks), entry points (handlers, routes), file organization, and database schema. Skip private/internal functions, standard patterns, and helper utilities.
+The spec records **where and why**; the code records **what and how**.
 
-Update when: after implementing a feature, after refactoring, when docs are stale.
+Document a **file map** (path + one-line purpose) and the feature's **entry points** (routes, handlers, commands). Do not mirror signatures, props, types, or schemas into the spec — they drift the moment code changes, and the code is already their source of truth.
 
-**Full format with examples:** `templates/feature.template.md` → Implementation section.
+Update when: files are added, moved, or removed; entry points change.
+
+**Format:** `templates/feature.template.md` → Implementation section.
 
 ---
 

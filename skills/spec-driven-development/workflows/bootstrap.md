@@ -82,6 +82,8 @@ Fill in:
 
 For each feature from Step 2, create a spec using `templates/feature.template.md`.
 
+The template is two-tier: fill the **core sections** for every feature; add **optional sections** (Architecture, Data Model, States, API Endpoints, Implementation, Testing Notes) only where their *Include when* test passes. Simple features get short specs — that's correct, not lazy.
+
 **For each feature:**
 
 1. **User Stories** - What can users do?

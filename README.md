@@ -4,250 +4,27 @@ A Claude Code skill and agent for spec-driven development. Specs are the source 
 
 → [Install](INSTALL.md)
 
+## What's New in 2.0
+
+See [CHANGELOG.md](CHANGELOG.md) for full details.
+
+- **Two-tier feature template**: core sections are always required; optional sections (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) each have an "Include when" test and are deleted otherwise
+- **File-map implementation docs**: Implementation sections list paths, purposes, and entry points only—signatures, props, and schemas are never mirrored into specs
+- **Draft-vs-sync rule enforcement**: quality rules are grouped by phase (PROCESS, SYNC auto-fixed, DRAFT user-confirmed, REVIEW, TEST) so the agent knows what to fix silently and what to ask about
+- **Deterministic validator**: a zero-dependency script (`scripts/validate-specs.mjs`) checks ID formats, required sections, table hygiene, and `@spec` references before any judgment-based review
+
 ## Why Specs as Source of Truth?
 
-### The Problem with Code as Truth
+When code is the only source of truth, intent lives nowhere: the "why" is buried in commit
+history, tests verify what the code does rather than what it should do, and whether something
+is a bug or a feature becomes a matter of opinion. Specs fix this by making intent explicit and
+versioned—user stories, requirements, and error cases that code, tests, and docs all derive from.
+For AI-assisted development, this is the difference between an agent guessing at requirements and
+building exactly what's specified—it replaces the vibe-coding patch loop with a deliberate
+understand → spec → implement → test → sync cycle. Traceability comes free: every user story maps
+to an E2E test and every requirement to a unit test, so a bug is an objective deviation from spec.
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     CODE AS SOURCE OF TRUTH                             │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│   Intent ──?──▶ Code ◀──?── Tests                                       │
-│                  │                                                      │
-│                  ▼                                                      │
-│            ┌──────────┐                                                 │
-│            │ Problems │                                                 │
-│            └──────────┘                                                 │
-│            • Intent lost in implementation details                      │
-│            • "Why" buried in commit history                             │
-│            • Tests verify behavior, not intent                          │
-│            • AI hallucinates without clear requirements                 │
-│            • Bugs vs features become opinion                            │
-│            • New devs reverse-engineer purpose                          │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### The Solution: Spec as Single Source of Truth
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                     SPEC AS SOURCE OF TRUTH                             │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                         │
-│                         ┌──────────┐                                    │
-│                         │   SPEC   │                                    │
-│                         │          │                                    │
-│                         │ Intent   │                                    │
-│                         │ Stories  │                                    │
-│                         │ REQs     │                                    │
-│                         │ Errors   │                                    │
-│                         └────┬─────┘                                    │
-│                              │                                          │
-│              ┌───────────────┼───────────────┐                          │
-│              │               │               │                          │
-│              ▼               ▼               ▼                          │
-│         ┌────────┐      ┌────────┐      ┌────────┐                      │
-│         │  CODE  │      │ TESTS  │      │  DOCS  │                      │
-│         │        │      │        │      │        │                      │
-│         │ Impl   │      │ Verify │      │ Explain│                      │
-│         └────────┘      └────────┘      └────────┘                      │
-│                                                                         │
-│   • Intent explicit and versioned                                       │
-│   • "Why" lives with "what"                                             │
-│   • Tests prove spec is implemented                                     │
-│   • AI has clear requirements to follow                                 │
-│   • Bug = deviation from spec (objective)                               │
-│   • New devs read spec first                                            │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
-### Why This Matters for AI-Assisted Development
-
-```
-┌──────────────────────────────────────────────────────────────────────────┐
-│                    WITHOUT SPEC                │     WITH SPEC           │
-├────────────────────────────────────────────────┼─────────────────────────┤
-│                                                │                         │
-│  User: "Add user auth"                         │  User: "Add user auth"  │
-│           │                                    │           │             │
-│           ▼                                    │           ▼             │
-│  ┌─────────────────┐                           │  ┌─────────────────┐    │
-│  │ AI guesses:     │                           │  │ AI reads spec:  │    │
-│  │ • JWT? Session? │                           │  │                 │    │
-│  │ • OAuth? Basic? │                           │  │ UserStory-01:   │    │
-│  │ • What errors?  │                           │  │ "User can login │    │
-│  │ • What fields?  │                           │  │  with email"    │    │
-│  │                 │                           │  │                 │    │
-│  │ Builds something│                           │  │ REQ-1: Password │    │
-│  │ that might work │                           │  │ min 8 chars     │    │
-│  └────────┬────────┘                           │  │                 │    │
-│           │                                    │  │ Error: "Invalid │    │
-│           ▼                                    │  │ credentials"    │    │
-│  ┌─────────────────┐                           │  └────────┬────────┘    │
-│  │ User: "No, I    │                           │           │             │
-│  │ wanted..."      │                           │           ▼             │
-│  │                 │                           │  ┌─────────────────┐    │
-│  │ Rework cycle    │                           │  │ Builds exactly  │    │
-│  │ begins          │                           │  │ what's specified│    │
-│  └─────────────────┘                           │  └─────────────────┘    │
-│                                                │                         │
-│  Result: Multiple iterations,                  │  Result: First attempt  │
-│  unclear if done, technical debt               │  matches intent, test-  │
-│                                                │  able, maintainable     │
-└────────────────────────────────────────────────┴─────────────────────────┘
-```
-
-### Vibe Coding Problems & How Specs Fix Them
-
-Vibe coding without specs creates a patch loop that compounds debt with every iteration.
-
-```
-         VIBE CODING                                    SPEC-DRIVEN
-              │                                              │
-              ▼                                              ▼
-┌─────────────────────────────┐                 ┌───────────────────────┐
-│          BUILD              │                 │      UNDERSTAND       │◀─────┐
-│                             │                 │                       │      │
-│  "Make a login page"        │                 │  What problem?        │      │
-│  AI generates code          │                 │  Who is it for?       │      │
-│  Looks reasonable           │                 │  What's success?      │      │
-└──────────────┬──────────────┘                 └───────────┬───────────┘      │
-               │                                            │                  │
-               ▼                                    unclear?─┴─clear           │
-┌─────────────────────────────┐                        │         │             │
-│         PROBLEM             │                        ▼         │             │
-│                             │                   AskUser        │             │
-│  "JWT isn't working"        │                   Research       │             │
-│  "Sessions don't persist"   │                   Read code      │             │
-│  "Wait, did we want OAuth?" │                        │         │             │
-└──────────────┬──────────────┘                        └────┬────┘             │
-               │                                            │                  │
-               ▼                                            ▼                  │
-┌─────────────────────────────┐                 ┌───────────────────────┐      │
-│          PATCH              │                 │         SPEC          │◀───┐ │
-│                             │                 │                       │    │ │
-│  "Fix the JWT thing"        │                 │  UserStory-01: ...    │    │ │
-│  AI adds more code          │                 │  REQ-01: ...          │    │ │
-│  Doesn't know original goal │                 │  Errors: ...          │    │ │
-└──────────────┬──────────────┘                 │  Architecture: ...    │    │ │
-               │                                │  Decision: JWT because│    │ │
-               │◀──────────────┐                └───────────┬───────────┘    │ │
-               ▼               │                            │                │ │
-┌─────────────────────────────┐│                    gaps?───┴───complete     │ │
-│       ANOTHER PROBLEM       ││                      │           │          │ │
-│                             ││                      └───────────│──────────┘ │
-│  "Now sessions break"       ││                     back to      │            │
-│  "Tests fail"               ││                     UNDERSTAND   │            │
-│  "The other page broke"     ││                                  ▼            │
-└──────────────┬──────────────┘│                 ┌───────────────────────┐     │
-               │               │                 │       REFLECT         │     │
-               └───────────────┘                 │                       │     │
-              patch loop                         │  Could someone else   │     │
-               │                                 │  build this from spec?│     │
-               │                                 └───────────┬───────────┘     │
-               ▼                                             │                 │
-┌─────────────────────────────┐                      no──────┴──────yes        │
-│      CONTEXT FILLS          │                      │               │         │
-│                             │                 refine spec          │         │
-│  50 messages deep           │                      │               │         │
-│  AI forgets decisions       │                      └───────┬───────┘         │
-│  "Let me try new approach"  │                              │                 │
-│  Contradicts earlier code   │                              ▼                 │
-└──────────────┬──────────────┘                 ┌───────────────────────┐      │
-               │                                │      IMPLEMENT        │◀──┐  │
-               │  (back to BUILD                │                       │   │  │
-               │   with hidden debt)            │  Build to spec        │   │  │
-               │                                │  Deviate? Update spec │   │  │
-               │                                └───────────┬───────────┘   │  │
-               │                                            │               │  │
-               │                                            ▼               │  │
-               │                                ┌───────────────────────┐   │  │
-               │                                │         TEST          │   │  │
-               │                                └───────────┬───────────┘   │  │
-               │                                            │               │  │
-               │                                    fail────┴────pass       │  │
-               │                                     ▼             │        │  │
-               │◀────────────────────┐        ┌───────────┐        │        │  │
-               │                     │        │ DIAGNOSE  │        │        │  │
-               ▼                     │        │           │        │        │  │
-┌─────────────────────────────┐      │        │ Compare:  │        │        │  │
-│      "WORKS"                │      │        │ spec/code │        │        │  │
-│                             │      │        │ /test     │        │        │  │
-│  "Looks right to me"        │      │        └─────┬─────┘        │        │  │
-│  Demo passes                │      │              │              │        │  │
-│  Tests pass (but test what  │      │        ┌─────┴─────┐        │        │  │
-│   code does, not intent)    │      │        │           │        │        │  │
-└──────────────┬──────────────┘      │      spec        code       │        │  │
-               │                     │      wrong       wrong      │        │  │
-               │                     │        │           │        │        │  │
-               │  "Seems done"       │        │           └────────│────────┘  │
-               │  Push to prod       │        │           fix code │           │
-               │                     │        │                    │           │
-               ▼                     │        └────────────────────│───────────┘
-┌─────────────────────────────┐      │                  update spec│
-│      PROD BUGS              │      │                             │
-│                             │      │                             ▼
-│  "Login doesn't work on     │      │                 ┌───────────────────────┐
-│   mobile"                   │      │                 │        SYNC           │
-│  "Edge case crashes app"    │      │                 │                       │
-│  "That feature we shipped   │      │                 │  Implementation done  │
-│   last month broke"         │      │                 │  Spec match reality?  │
-└──────────────┬──────────────┘      │                 │  Update if diverged   │
-               │                     │                 └───────────┬───────────┘
-               ▼                     │                             │
-┌─────────────────────────────┐      │                             ▼
-│      FIREFIGHT              │      │                 ┌───────────────────────┐
-│                             │      │                 │        DONE ✓         │
-│  Hotfix login               │      │                 │                       │
-│  → breaks registration      │      │                 │  All REQs pass        │
-│  Fix registration           │      │                 │  Stories verified     │
-│  → breaks password reset    │      │                 │  Spec is current      │
-│  "Why is this so fragile?"  │      │                 └───────────┬───────────┘
-└──────────────┬──────────────┘      │                             │
-               │                     │                             │
-               └─────────────────────┘                             ▼
-                    back to BUILD                            next feature
-                    (more debt each time)                          │
-                                                                   │
-                                                                   └──────────┐
-                                                                              │
-                                                                              ▼
-                                                                   write next spec
-```
-
-### The Traceability Advantage
-
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│  SPEC                    CODE                   TEST                    │
-│                                                                         │
-│  UserStory-auth-01 ─────▶ login.ts ────────────▶ login.spec.ts          │
-│  "User can login"        handleLogin()          @spec UserStory-auth-01 │
-│                                │                        │               │
-│                                │                        │               │
-│  REQ-1 ─────────────────▶ validates password ──▶ "REQ-1: min 8 chars"   │
-│  "Password min 8 chars"                                                 │
-│                                                                         │
-│  ─────────────────────────────────────────────────────────────────────  │
-│                                                                         │
-│  Bug reported: "Can login with 5 char password"                         │
-│                          │                                              │
-│                          ▼                                              │
-│              ┌─────────────────────────┐                                │
-│              │ Check: Does code match  │                                │
-│              │ REQ-1? No.              │                                │
-│              │                         │                                │
-│              │ Fix CODE, not spec.     │                                │
-│              │ This is a bug, not a    │                                │
-│              │ feature request.        │                                │
-│              └─────────────────────────┘                                │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+Full argument with diagrams: [docs/why.md](docs/why.md)
 
 ## What This Is
 
@@ -394,9 +171,13 @@ Spec → Implement → Test → Update spec if needed
 | "What to work on?" | Surface and prioritize todos |
 | Checking quality | Run health check against specs |
 
+The health check runs the bundled validator (`scripts/validate-specs.mjs`) first for deterministic checks, then reviews the judgment-based rules.
+
 ## Usage
 
 ### Via Command
+
+`/sdd` is the single command. It summarizes the conversation context and passes it to the agent along with your request.
 
 ```
 /sdd write spec for user authentication
@@ -419,11 +200,11 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 **Feature specs** (one per feature):
 - User stories (`UserStory-[feature]-##`)
 - Requirements (`REQ-##`)
-- Architecture diagrams
 - Error cases
 - Edge cases
 - Known issues (`BUG-[feature]-##`)
 - Future considerations (todos)
+- Optional sections (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) only when they earn their place
 
 ## Key Concepts
 
@@ -476,18 +257,19 @@ skills/spec-driven-development/
 ├── workflows/
 │   ├── bootstrap.md         # Generate specs for existing codebase
 │   └── todos.md             # Todo analysis with YAGNI filtering
-└── references/
-    ├── e2e-test-format.md    # E2E test header format
-    ├── examples.md           # Good/bad spec examples
-    ├── quality-checklist.md  # Full quality checklist
-    └── test-anti-patterns.md # LLM test anti-patterns
+├── references/
+│   ├── e2e-test-format.md    # E2E test header format
+│   ├── examples.md           # Good/bad spec examples
+│   ├── quality-checklist.md  # Full quality checklist
+│   └── test-anti-patterns.md # LLM test anti-patterns
+└── scripts/
+    └── validate-specs.mjs    # Zero-dependency spec validator
 
 agents/
 └── spec-driven-development.md  # Agent definition
 
 commands/
-├── sdd.md                      # Short alias
-└── spec-driven-development.md  # Full command
+└── sdd.md                      # /sdd command
 ```
 
 ## Philosophy

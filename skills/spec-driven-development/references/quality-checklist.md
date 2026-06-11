@@ -1,13 +1,14 @@
 # Full Quality Checklist
 
-Before finishing any spec work, verify the following items. These map to CODE-RULE.1-13 and TEST-RULE.1-9 from the Quality Rules section in SKILL.md.
+Before finishing any spec work, verify the following items. These map to CODE-RULE.1–8, REVIEW-RULE.1–3, and TEST-RULE.1–9 from the Quality Rules section in SKILL.md.
 
 ## Content (All Specs)
 
-- [ ] No empty sections or placeholders (CODE-RULE.7)
-- [ ] No vague descriptions ("handles errors appropriately") (CODE-RULE.8)
+- [ ] No empty sections or placeholders (CODE-RULE.5)
+- [ ] No vague descriptions ("handles errors appropriately") (CODE-RULE.6)
 - [ ] Active voice ("API returns" not "data is returned")
 - [ ] Spec is understandable without prior context (clear "What It Does", scannable structure)
+- [ ] Core sections present; optional sections either pass their *Include when* test or are deleted
 - [ ] Changelog entry added for changes
 
 ## Feature Specs — User Stories
@@ -25,31 +26,26 @@ Before finishing any spec work, verify the following items. These map to CODE-RU
 ## Feature Specs — Error & Edge Cases
 
 - [ ] Error cases table: Error, Cause, User Sees, Recovery
-- [ ] At least 3 error cases documented (CODE-RULE.10)
+- [ ] At least 3 error cases documented (CODE-RULE.7)
 - [ ] Edge cases table: Scenario, Expected Behavior
-- [ ] At least 3 edge cases documented (CODE-RULE.11-edge)
+- [ ] At least 3 edge cases documented (CODE-RULE.8)
 
-## Feature Specs — Architecture
+## Feature Specs — Architecture (if included)
 
+- [ ] Included only when the feature spans more than one component or system
 - [ ] Component diagram present
 - [ ] Data flow documented
-- [ ] Data model with fields and types
 
-## Feature Specs — Implementation
+## Feature Specs — Implementation (if included)
 
-- [ ] Implementation section present (or explicitly deleted if not applicable)
-- [ ] File dependency graph shows actual file structure (CODE-RULE.2)
-- [ ] All file paths in tables exist in codebase (CODE-RULE.2)
-- [ ] Component/Handler signatures match actual code (CODE-RULE.3)
-- [ ] Type definitions match actual types (CODE-RULE.3)
-- [ ] Database schema matches migrations (CODE-RULE.5)
-- [ ] No placeholder file paths (`path/to/file.ts`, `handlers/example.go`) (CODE-RULE.6)
-- [ ] No example/dummy data in tables (rows must contain real values from the codebase, not placeholders like "example.com", "test@email.com", or "placeholder value")
-- [ ] Table columns complete (no empty cells except optional State/Side Effects) (CODE-RULE.7)
-- [ ] Functions include return types/signatures
-- [ ] HTTP routes match actual endpoints
+- [ ] File map only: Path + one-line Purpose, plus Entry Points — no mirrored signatures, props, types, or schemas
+- [ ] All file paths in the file map exist in the codebase (CODE-RULE.3)
+- [ ] No placeholder file paths (`path/to/file.ts`, `handlers/example.go`) (CODE-RULE.4)
+- [ ] No example/dummy data in tables (rows must contain real values from the codebase)
+- [ ] Table columns complete (no empty cells) (CODE-RULE.5)
+- [ ] Entry points match actual routes/handlers/commands
 
-## Feature Specs — Testing
+## Feature Specs — Testing (if included)
 
 - [ ] Critical paths identified
 - [ ] "Not Worth Testing" documented
@@ -72,11 +68,11 @@ Before finishing any spec work, verify the following items. These map to CODE-RU
 - [ ] Spec matches current implementation — re-read code if uncertain
 - [ ] No outdated references
 
-## Project Organization
+## Spec Organization (Link Hygiene)
 
-- [ ] All .md files in specs/ (or app_spec/), or legitimate exceptions: README.md, INSTALL.md, CLAUDE.md, CONTRIBUTING.md, CHANGELOG.md, LICENSE.md, docs/**
-- [ ] No .txt files in project root or source directories
-- [ ] Stray .md/.txt files identified and confirmed with user before deleting
+- [ ] Every feature spec is linked from the overview's Features table
+- [ ] Every Features-table link resolves to an existing file
+- [ ] No orphan files inside the spec directory
 
 ## Markdown Formatting
 

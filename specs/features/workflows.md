@@ -30,7 +30,7 @@ A 6-step workflow for generating specs for an existing codebase:
 2. Understand the project (ask user or read README/package.json)
 3. Identify features (think in user terms, explore routes/endpoints)
 4. Create overview spec (fill from Step 1-2 understanding)
-5. Create feature specs (one per feature, all 5 spec elements)
+5. Create feature specs (one per feature; two-tier — core sections always, optional sections only where their *Include when* test passes)
 6. Verify and report (checklist + summary table)
 
 ### todos.md
@@ -157,7 +157,7 @@ skills/spec-driven-development/workflows/
 | Step 1: Understand | Project purpose and users | AskUserQuestion or Read README, package.json |
 | Step 2: Identify Features | What can users do? | Glob pages/**, app/**, Grep GET\|POST\|PUT\|DELETE |
 | Step 3: Create Overview | Fill overview template | Read overview.template.md → Write specs/overview.md |
-| Step 4: Create Feature Specs | One per feature | Read feature.template.md → Write specs/features/[name].md |
+| Step 4: Create Feature Specs | One per feature; fill core sections, add optional sections only when their Include-when test passes | Read feature.template.md → Write specs/features/[name].md |
 | Step 5: Verify | Quality checklist | Check each spec for completeness |
 | Step 6: Report | Summary table | Print features, user story count, requirement count, error count |
 
@@ -234,3 +234,4 @@ No active bugs.
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
+| 2026-06-11 | Documented two-tier template usage in bootstrap Step 4 | Spec synced to methodology v2 bootstrap.md |

@@ -7,14 +7,14 @@
 ## User Stories
 
 - UserStory-templates-01: As a developer, I can copy the overview template to create a project-level spec so that I don't miss any of the required sections (architecture, tech stack, data flow, cross-cutting concerns)
-- UserStory-templates-02: As a developer, I can copy the feature template to create a feature spec so that I have the correct structure for user stories, requirements, error cases, edge cases, and implementation documentation
-- UserStory-templates-03: As a developer, I can read the feature template's Implementation section so that I know the exact format for documenting components, hooks, handlers, and database schema
+- UserStory-templates-02: As a developer, I can copy the feature template to create a feature spec so that I fill the required core sections and add optional sections only when their *Include when* test passes
+- UserStory-templates-03: As a developer, I can read the feature template's Implementation section so that I know to document a file map (path + purpose) and entry points — and to leave signatures, props, types, and schemas in the code
 
 ---
 
 ## Out of Scope
 
-- Template validation or linting tooling (templates are read by Claude, not executed)
+- Template validation or linting tooling (the validator script checks filled specs, not the templates themselves)
 - Language-specific templates (templates are framework-agnostic)
 - Auto-population of templates from code scanning (that's the bootstrap workflow's job)
 
@@ -23,7 +23,8 @@
 ## What It Does
 
 - Provides `overview.template.md`: a complete project-level spec template with all sections pre-structured (purpose, user stories, architecture diagrams, tech stack, data flow, cross-cutting concerns, features table, development setup, deployment, decisions, constraints, roadmap, changelog)
-- Provides `feature.template.md`: a complete feature spec template with user story format, requirements table, architecture diagrams, data model, state machine, error cases, edge cases, API endpoints, implementation tables (components, hooks, handlers, schema), decisions, testing notes, known issues, future considerations, changelog
+- Provides `feature.template.md`: a two-tier feature spec template — **core sections** required in every spec (User Stories, Out of Scope, What It Does, Requirements, Error Cases, Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog) and **optional sections** each gated by an explicit *Include when* test (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes)
+- The Implementation section is a file map (path + one-line purpose) plus entry points — no mirrored signatures, props, types, or schemas
 - Both templates include instructional comments that guide spec authors on what content belongs in each section
 - The feature template includes the `UserStory-[feature]-##` format reminder and acceptance criteria note
 
@@ -34,12 +35,12 @@
 | ID | Requirement | Priority |
 |----|-------------|----------|
 | REQ-1 | overview.template.md must include all required overview sections: Purpose, User Stories, System Architecture, Tech Stack, Data Flow, Cross-Cutting Concerns, Features table, Development, Key Decisions, Changelog | Must |
-| REQ-2 | feature.template.md must include all required feature sections: User Stories (with ID format), Out of Scope, Requirements (with ID and Priority columns), Architecture, Error Cases (with 4 columns), Edge Cases, Implementation, Known Issues, Future Considerations, Changelog | Must |
-| REQ-3 | The feature template's Implementation section must include tables for: Frontend components, Hooks, API layer, Type definitions, Backend handlers, Models, Services, Database schema | Must |
+| REQ-2 | feature.template.md must declare the core sections required in every spec: User Stories (with ID format), Out of Scope, What It Does, Requirements (with ID and Priority columns), Error Cases (with 4 columns), Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog | Must |
+| REQ-3 | Each optional section (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) must carry an explicit *Include when* test, and the Implementation section must be a file map (Path + Purpose) plus Entry Points — no component/hook/handler/schema tables | Must |
 | REQ-4 | Both templates must use placeholder text (e.g., [Feature Name], [field1]) that makes the structure clear without implying real content | Must |
 | REQ-5 | The feature template must include the UserStory ID format reminder (`UserStory-[feature]-##`) and the acceptance criteria note about tightening requirements | Must |
 | REQ-6 | The overview template architecture section must include an ASCII diagram with component boxes and arrows | Should |
-| REQ-7 | The feature template must include State Machine and State Descriptions sections within States & Transitions | Should |
+| REQ-7 | The feature template's optional States & Transitions section must include State Machine and State Descriptions subsections | Should |
 
 ---
 
@@ -59,7 +60,8 @@ skills/spec-driven-development/
 ```text
 Developer or agent wants to create a new spec
     → reads overview.template.md or feature.template.md (as instructed by SKILL.md)
-    → fills in sections with real content from codebase
+    → fills core sections; runs each optional section's Include-when test
+    → keeps optional sections that pass, deletes the rest
     → saves to project's spec directory
 ```
 
@@ -69,9 +71,9 @@ Developer or agent wants to create a new spec
 
 | State | Description | Transition |
 |-------|-------------|------------|
-| Template | Blank structure with placeholder text | Developer/agent reads and fills in |
-| Draft spec | Template filled with real content | Developer reviews for completeness |
-| Accepted spec | Passes quality checklist | Used as implementation source of truth |
+| Template | Blank structure with placeholder text and Include-when tests | Developer/agent reads and fills in |
+| Draft spec | Core filled; optional sections kept or deleted per their tests | Developer reviews for completeness |
+| Accepted spec | Passes quality checklist and validator | Used as implementation source of truth |
 
 ---
 
@@ -79,11 +81,12 @@ Developer or agent wants to create a new spec
 
 | Error | Cause | User Sees | Recovery |
 |-------|-------|-----------|----------|
-| Template sections skipped | Developer/agent deletes sections without filling them | Spec missing error cases, edge cases, or architecture | Re-read template; fill missing sections or explicitly justify omission |
-| Placeholder text left in spec | Template placeholder not replaced with real content | Spec contains [Feature Name], path/to/file, or similar fake content | Run spec health check; CODE-RULE.6 and CODE-RULE.7 catch this |
+| Core sections skipped | Developer/agent deletes core sections without filling them | Spec missing error cases, edge cases, or requirements; validator reports missing-section ERRORs | Re-read template; fill all core sections |
+| Optional section padded | Section added even though its Include-when test fails | Boilerplate Architecture/Data Model sections with no real content | Delete the section; a complete core is a complete spec |
+| Placeholder text left in spec | Template placeholder not replaced with real content | Spec contains [Feature Name], path/to/file, or similar fake content | Run spec health check; CODE-RULE.4 (placeholder paths) and CODE-RULE.6 (vague descriptions) catch this |
 | Wrong template used | Feature spec created with overview template structure | Spec missing UserStory IDs, Requirements table | Start over with feature.template.md |
-| Template out of date | Project uses old template lacking Out of Scope or Known Issues sections | Spec misses important sections | Re-copy latest templates from repo |
-| Implementation section too detailed | Agent documents every private function, not just public API | Spec becomes a code mirror, not a spec | Implementation section guidance: document public APIs only |
+| Template out of date | Project uses v1 template lacking two-tier markers and file-map Implementation | Specs accumulate signature/schema tables that drift from code | Re-copy latest templates from repo |
+| Implementation section mirrors code | Agent documents signatures, props, types, or schemas | Spec becomes a code mirror that drifts on every change | v2 template restricts Implementation to file map + entry points |
 
 ---
 
@@ -91,11 +94,11 @@ Developer or agent wants to create a new spec
 
 | Scenario | Expected Behavior |
 |----------|-------------------|
-| Feature has no backend (frontend-only) | Backend sections in template are deleted; template instructs "delete if not applicable" |
-| Feature has no database schema | Database schema section deleted; no empty section left |
+| Feature has no backend (frontend-only) | API Endpoints fails its Include-when test and is deleted; no empty section left |
+| Feature has no persisted entities | Data Model fails its Include-when test ("owns persisted entities or non-obvious data shapes") and is deleted |
 | Project uses Go, not TypeScript | Template TypeScript examples replaced with Go equivalents; template is language-agnostic |
 | Overview spec has no external services | External AI row in tech stack deleted; layer responsibilities table adjusted |
-| Feature is very simple (1 user story, 2 requirements) | Template used but thin; that's acceptable if the feature is genuinely simple |
+| Feature is very simple (1 user story, 2 requirements) | Core-only spec with no optional sections — complete by design, not thin |
 
 ---
 
@@ -132,38 +135,57 @@ skills/spec-driven-development/templates/
 
 ### Template Structure: feature.template.md
 
-| Section | Purpose |
-|---------|---------|
-| User Stories | UserStory-[feature]-## format with ID format note and acceptance criteria note |
-| Out of Scope | Explicit exclusions for this feature |
-| What It Does | High-level behavior bullets |
-| Requirements | REQ-## table with Priority (Must/Should/Could) |
-| Architecture | Component Diagram, Data Flow, Sequence Diagram (optional) |
-| Data Model | Field tables + Relationships diagram |
-| States & Transitions | State machine ASCII art + State Descriptions table |
-| Error Cases | 4-column table: Error, Cause, User Sees, Recovery |
-| Edge Cases | 2-column table: Scenario, Expected Behavior |
-| API Endpoints | Method, Endpoint, Request, Response, Description |
-| Implementation | File dependency graph + component/hook/handler/schema tables |
-| Key Decisions | ADR-style per decision |
-| Testing Notes | Critical Paths (E2E), Unit Tests, Test Data, Not Worth Testing |
-| Known Issues | BUG-[feature]-## table with severity |
-| Future Considerations | Unchecked todo list |
-| Changelog | Date/Change/Reason table |
+| Section | Tier | Purpose |
+|---------|------|---------|
+| User Stories | Core | UserStory-[feature]-## format with ID format note and acceptance criteria note |
+| Out of Scope | Core | Explicit exclusions for this feature |
+| What It Does | Core | High-level behavior bullets |
+| Requirements | Core | REQ-## table with Priority (Must/Should/Could) |
+| Architecture | Optional — feature spans more than one component or system | Component Diagram, Data Flow, Sequence Diagram (when 3+ systems in one flow) |
+| Data Model | Optional — feature owns persisted entities or non-obvious data shapes | Field tables + Relationships diagram |
+| States & Transitions | Optional — more than two states or non-obvious transitions | State machine ASCII art + State Descriptions table |
+| Error Cases | Core | 4-column table: Error, Cause, User Sees, Recovery |
+| Edge Cases | Core | 2-column table: Scenario, Expected Behavior |
+| API Endpoints | Optional — feature exposes or consumes HTTP endpoints | Method, Endpoint, Request, Response, Description |
+| Implementation | Optional — add after implementation | File Map (Path + Purpose) + Entry Points only |
+| Key Decisions | Core | ADR-style per decision |
+| Testing Notes | Optional — test strategy isn't obvious from Requirements and stories | Critical Paths (E2E), Unit Tests, Not Worth Testing |
+| Known Issues | Core | BUG-[feature]-## table with severity |
+| Future Considerations | Core | Unchecked todo list |
+| Changelog | Core | Date/Change/Reason table |
 
 ---
 
 ## Key Decisions
 
-### Decision 1: Include implementation section in feature template
+### Decision 1: File map over signature mirror
 
-**Context:** Implementation details (component signatures, handler routes, schema) could be in a separate document.
+**Context:** v1's Implementation section mirrored component signatures, hooks, handler routes, and database schema into the spec. Those tables drifted the moment code changed and duplicated what the code already states authoritatively.
 
-**Decision:** Include in the feature spec as a dedicated Implementation section. The spec is the single source of truth — implementation details belong with the feature's user stories and requirements.
+**Options Considered:**
 
-**Consequences:** Feature specs are larger but self-contained. When a test fails, the developer reads one file to understand intent (user stories/REQs) and implementation (handler, component).
+1. Keep mirroring signatures/schemas — self-contained spec, but constant drift and double maintenance
+2. File map + entry points only — spec records *where and why*; code records *what and how*
 
-### Decision 2: Use ASCII art for diagrams, not Mermaid
+**Decision:** File map. The Implementation section holds path + one-line purpose plus the feature's entry points (routes, handlers, commands), nothing more.
+
+**Consequences:** Specs stay correct longer with less maintenance; existence of paths is mechanically checkable (CODE-RULE.3, validator). Readers open the code for signatures — which is where they were going anyway.
+
+### Decision 2: Two tiers to prevent ceremony fatigue
+
+**Context:** v1 treated every template section as expected, so simple features accumulated boilerplate Architecture, Data Model, and States sections just to look complete — and authors learned to pad rather than think.
+
+**Options Considered:**
+
+1. One flat template, all sections expected — uniform but heavy for small features
+2. Separate "minimal" and "full" template variants — two files to keep in sync
+3. One template, two tiers — core required, optional sections gated by *Include when* tests
+
+**Decision:** Two tiers in a single template. Each optional section states the test for its own inclusion; if the test fails, the section is deleted.
+
+**Consequences:** Simple features get short specs that are complete by definition. The Include-when test makes "should this section exist?" an explicit, reviewable judgment instead of a habit.
+
+### Decision 3: Use ASCII art for diagrams, not Mermaid
 
 **Context:** Mermaid diagrams are not reliably rendered in all Markdown viewers. Claude renders ASCII art as plain text.
 
@@ -178,12 +200,12 @@ skills/spec-driven-development/templates/
 ### Critical Paths
 
 1. UserStory-templates-01: Create overview spec using template → verify all required sections present → covers REQ-1, REQ-6
-2. UserStory-templates-02: Create feature spec using template → verify user story IDs, requirements, error cases, edge cases present → covers REQ-2, REQ-5
-3. UserStory-templates-03: Read implementation section → verify component/hook/handler/schema tables present → covers REQ-3
+2. UserStory-templates-02: Create feature spec using template → verify core sections filled and failing optional sections deleted → covers REQ-2, REQ-3, REQ-5
+3. UserStory-templates-03: Read implementation section → verify file map + entry points format, no signature/schema tables → covers REQ-3
 
 ### Not Worth Testing
 
-- Automated tests (no runnable code — methodology-only repo)
+- Automated tests of template text (the validator checks filled specs, not templates)
 - Whether placeholder text is visually obvious (subjective)
 - Template file size
 
@@ -197,7 +219,6 @@ No active bugs.
 
 ## Future Considerations
 
-- [ ] Add a minimal template variant for simple features (fewer sections, faster to fill)
 - [ ] Add a GraphQL API variant of the API Endpoints section
 
 ---
@@ -209,3 +230,4 @@ No active bugs.
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
+| 2026-06-11 | Documented two-tier template (core/optional with Include-when tests), file-map-only Implementation section, new Key Decisions; removed minimal-variant todo (delivered by two-tier design) | Spec synced to methodology v2 template |

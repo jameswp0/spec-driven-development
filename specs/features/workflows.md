@@ -33,11 +33,14 @@ A 6-step workflow for generating specs for an existing codebase:
 5. Create feature specs (one per feature; two-tier — core sections always, optional sections only where their *Include when* test passes)
 6. Verify and report (checklist + summary table)
 
+Bootstrap documents *existing* code, so output goes to `features/` only — aspirational items go to Future Considerations, or to `specs/future/` work items if the project uses the lifecycle convention.
+
 ### todos.md
 
 A workflow for analyzing and prioritizing todos across all feature specs:
 
 - Read all future considerations sections
+- If `specs/future/` exists, include each work item there as a backlog entry (feature-sized, already specced — usually outranks loose todos)
 - Map dependencies (what blocks what)
 - Filter YAGNI candidates (do we actually need this?)
 - Prioritize: bugs > security > blocking > quick wins
@@ -56,6 +59,7 @@ A workflow for analyzing and prioritizing todos across all feature specs:
 | REQ-5 | todos.md must apply YAGNI filtering — question todos that add complexity without clear user value | Must |
 | REQ-6 | todos.md must output a prioritized list with rationale, not just a ranked list | Must |
 | REQ-7 | Both workflows must be concise enough to read in under 2 minutes — complex detail belongs in templates or SKILL.md | Should |
+| REQ-8 | bootstrap.md must direct bootstrap output to `features/` only (it documents existing code); todos.md must include `specs/future/` work items as a backlog source when the directory exists | Should |
 
 ---
 
@@ -157,7 +161,7 @@ skills/spec-driven-development/workflows/
 | Step 1: Understand | Project purpose and users | AskUserQuestion or Read README, package.json |
 | Step 2: Identify Features | What can users do? | Glob pages/**, app/**, Grep GET\|POST\|PUT\|DELETE |
 | Step 3: Create Overview | Fill overview template | Read overview.template.md → Write specs/overview.md |
-| Step 4: Create Feature Specs | One per feature; fill core sections, add optional sections only when their Include-when test passes | Read feature.template.md → Write specs/features/[name].md |
+| Step 4: Create Feature Specs | One per feature; fill core sections, add optional sections only when their Include-when test passes; output to features/ only (bootstrap documents existing code) | Read feature.template.md → Write specs/features/[name].md |
 | Step 5: Verify | Quality checklist | Check each spec for completeness |
 | Step 6: Report | Summary table | Print features, user story count, requirement count, error count |
 
@@ -165,7 +169,7 @@ skills/spec-driven-development/workflows/
 
 | Step | Description | Agent Actions |
 |------|-------------|---------------|
-| Step 1: Gather | Read all future considerations | Glob specs/**/*.md → Read each → extract todos |
+| Step 1: Gather | Read all future considerations; include specs/future/ work items if present | Glob specs/**/*.md → Read each → extract todos and future/ work items |
 | Step 2: Dependencies | Map blocking relationships | Identify which todos require others first |
 | Step 3: YAGNI filter | Question low-value todos | Ask: do we actually need this? |
 | Step 4: Prioritize | Order by impact | bugs > security > blocking > quick wins |
@@ -235,3 +239,4 @@ No active bugs.
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
 | 2026-06-11 | Documented two-tier template usage in bootstrap Step 4 | Spec synced to methodology v2 bootstrap.md |
+| 2026-06-11 | Added REQ-8: bootstrap outputs to features/ only; todos workflow scans specs/future/ as a backlog source | Merged spec-lifecycle work item (lifecycle's first execution) |

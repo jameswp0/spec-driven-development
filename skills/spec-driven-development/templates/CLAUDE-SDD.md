@@ -21,7 +21,7 @@ Spec → Implement → Test → Sync
 
 **Non-negotiable rules:**
 
-1. **No feature work without a spec.** Before building or changing a feature, a spec must exist in `specs/features/`. If asked to build something unspecced, write the spec first (use the skill's `templates/feature.template.md` — core sections always, optional sections only when their *Include when* test passes), get it confirmed, then implement.
+1. **No feature work without a spec.** Before building or changing a feature, the work item must be specced in `specs/future/` — a new feature uses the skill's `templates/feature.template.md`; a change to an existing feature uses `templates/future.template.md` (work-item scoped, e.g. `future/tasks-filtering.md`). Get it confirmed, then implement. When the work ships: merge it into `specs/features/`, then delete the future file (its Merge Checklist).
 2. **Spec is truth in disputes.** If code and spec disagree, the code is wrong — fix the code. Never weaken a spec or a test to make an implementation pass. If intent genuinely changed, update the spec first (with a changelog entry), then the code.
 3. **Sync after implementing.** When implementation deviates from the spec or adds behavior, update the spec in the same piece of work. A PR that changes behavior but not the spec is incomplete.
 4. **Intent edits need confirmation.** Requirements, error cases, and edge cases are the user's intent. Propose drafts and wait for approval — never silently invent or auto-fill them (the skill's DRAFT rules).
@@ -30,15 +30,18 @@ Spec → Implement → Test → Sync
 ## Spec Location
 
 - Overview: `specs/overview.md`
-- Features: `specs/features/[feature].md`
+- Features (present tense — always true of the code): `specs/features/[feature].md`
+- Unbuilt work (intent — never checked against code): `specs/future/[work-item].md`
 - IDs: `UserStory-[feature]-##`, `REQ-##` (sequential per spec), `BUG-[feature]-##`
+
+`specs/features/` divergence from code is always a bug. `ls specs/future/` is the open-work list. Tests reference `features/` paths only.
 
 ## When To Do What
 
 | Situation | Action |
 |-----------|--------|
-| New feature requested | Write/extend the feature spec, confirm, then implement |
-| Just finished implementing | Run tests; sync the spec; add changelog entry |
+| New feature requested | Write the spec in `specs/future/`, confirm, then implement |
+| Just finished implementing | Run tests; merge the future spec into `specs/features/` (Merge Checklist), delete it; changelog entry |
 | Test failing | Find the `@spec` reference; diagnose spec vs code vs test — fix the code unless intent changed |
 | Bug found | Add to the feature spec's Known Issues (`BUG-[feature]-##`, severity, links) |
 | Bug fixed | Remove the Known Issues row; add changelog entry |

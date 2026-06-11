@@ -73,7 +73,7 @@ Developers using AI assistants (Claude Code) without explicit specs get inconsis
 | Skill (SKILL.md) | Methodology: quality rules, flow, bug tracking, test health check (description always visible; body loaded on invocation) | Markdown skill with frontmatter |
 | Agent definition | Orchestration: slim quick reference, tool list; defers to skill | Markdown with YAML frontmatter |
 | Command (sdd.md) | Single entry point: summarizes context, passes request to agent via Task tool | Markdown with allowed-tools frontmatter |
-| Templates | Two-tier blank spec structures for overview and feature specs | Markdown |
+| Templates | Two-tier blank spec structures for overview and feature specs, work-item (future/) delta template, CLAUDE.md starter | Markdown |
 | Workflows | Step-by-step guides for complex operations (bootstrap, todo analysis) | Markdown |
 | Scripts | Mechanical spec validation (health check step 1) | Zero-dependency Node 18+ script |
 | References | Lookup tables: E2E format, examples, quality checklist, test anti-patterns | Markdown |
@@ -131,6 +131,8 @@ User: /sdd "check specs"
     → step 3: draft pass — vague wording, empty intent cells, <3 error/edge
               cases drafted and applied only after user confirms
     → step 4: link hygiene — Features-table links resolve, no orphan specs
+    → step 5: lifecycle hygiene (if future/ exists) — flag shipped-but-unmerged
+              work items for merge-and-delete
     → reports validator findings, auto-fixes, and confirmed drafts
 ```
 
@@ -159,7 +161,7 @@ Files are versioned via git. Users who install by `cp` get a snapshot; they re-c
 | Skill | SDD methodology discoverable in every conversation, loaded on invocation | [features/skill.md](features/skill.md) |
 | Agent | Autonomous spec worker for heavy-lifting operations | [features/agent.md](features/agent.md) |
 | Commands | `/sdd` slash command entry point with context summarization | [features/commands.md](features/commands.md) |
-| Templates | Two-tier blank spec structures (overview, feature) plus CLAUDE.md starter for new projects | [features/templates.md](features/templates.md) |
+| Templates | Two-tier blank spec structures (overview, feature), future work-item delta template, plus CLAUDE.md starter for new projects | [features/templates.md](features/templates.md) |
 | Workflows | Complex operation guides: bootstrap, todo analysis | [features/workflows.md](features/workflows.md) |
 | Validator | Zero-dependency mechanical spec validation script | [features/validator.md](features/validator.md) |
 
@@ -225,6 +227,14 @@ cp commands/sdd.md ~/.claude/commands/
 
 **Consequences:** Flexible for existing projects. The agent always Globs both paths before assuming no specs exist.
 
+### Decision 4: This repo adopts the tense-split lifecycle convention
+
+**Context:** The 2.1.0 Spec Lifecycle (Present/Future) is opt-in: `specs/features/` stays present tense (always true of the code), and unbuilt work lives in `specs/future/` as work-item specs that merge into base specs on ship.
+
+**Decision:** This repo dogfoods the convention on its own specs. `specs/features/` divergence from the shipped files is always a bug; planned work is specced under `specs/future/` and deleted on merge. An empty or absent `specs/future/` means there are no open work items — the overview carries no Pipeline section in that state (its *Include when* test fails).
+
+**Consequences:** `ls specs/future/` is this repo's open-work list; git history is the archive of merged proposals. The convention's first execution was merging its own proposal (`specs/future/spec-lifecycle.md`) into these base specs.
+
 ---
 
 ## Constraints & Limitations
@@ -253,3 +263,4 @@ cp commands/sdd.md ~/.claude/commands/
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
 | 2026-06-11 | Methodology v2 sync: added Validator feature, scripts/ layer, single /sdd command, validator step in health check flow, progressive-disclosure skill loading, amended no-runtime-code decision and constraints | Spec synced to v2.0.0 release |
 | 2026-06-11 | Templates feature now includes CLAUDE-SDD.md starter for new projects | New CLAUDE.md starter binds SDD workflow into new projects |
+| 2026-06-11 | Adopted the specs/future/ tense-split lifecycle (Decision 4), added health check step 5 and future/work-item template to layer and feature descriptions | Merged spec-lifecycle work item (lifecycle's first execution) |

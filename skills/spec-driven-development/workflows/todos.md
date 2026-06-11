@@ -9,6 +9,7 @@ For simple "implement this one todo" — just do it. This workflow is for the fu
 Scan all sources:
 - Use Glob (`specs/**/*.md` or `app_spec/**/*.md`) to find all spec files
 - Use Grep for pattern `## Future Considerations` with context (`-A 20`) to extract todo sections
+- If `specs/future/` exists, each work item there is a backlog entry too (feature-sized, already specced — usually outranks loose todos)
 
 **ID scheme used in this workflow:**
 - `B#` = Backend todo (numbered sequentially across all backend todos)

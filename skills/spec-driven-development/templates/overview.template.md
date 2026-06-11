@@ -230,6 +230,18 @@ All API requests require: [Header/Cookie description]
 
 ---
 
+## Pipeline
+
+> **Optional** — *Include when* the project uses the `specs/future/` lifecycle (SKILL.md → Spec Lifecycle). Delete otherwise.
+
+Unbuilt work items. Rows are removed when the work item merges into its base spec.
+
+| Work Item | Target Feature | Spec |
+|-----------|----------------|------|
+| [Work item] | [Feature 1] | [future/work-item.md](future/work-item.md) |
+
+---
+
 ## Development
 
 ### Prerequisites

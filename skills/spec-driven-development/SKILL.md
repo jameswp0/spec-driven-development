@@ -1,7 +1,7 @@
 ---
 name: spec-driven-development
 description: Spec-driven development methodology. Write specs before building, update after implementing, check against when tests fail, log bugs in, surface todos when idle. Use when bootstrapping a codebase, running a spec health check, generating tests from requirements, or writing a feature spec. Specs define intent before code exists and connect intent, code, and tests.
-version: 2.0.0
+version: 2.1.0
 ---
 
 > **Spec location:** Typically `specs/` or `app_spec/`. Adapt paths to your project.
@@ -12,7 +12,7 @@ version: 2.0.0
 - [Quality Rules](#quality-rules)
 - [Principle](#principle)
 - [Intent Detection](#intent-detection) · [Spec Health Check](#spec-health-check)
-- [The Flow](#the-flow)
+- [The Flow](#the-flow) · [Spec Lifecycle](#spec-lifecycle-presentfuture)
 - [Process Notes](#process-notes) · [Quality Checklist](#quality-checklist)
 - [E2E Test Format](#e2e-test-format) · [Failure Modes](#failure-modes) · [Examples](#examples)
 - [Todos](#todos-future-considerations) · [Bug Tracking](#bug-tracking)
@@ -172,7 +172,7 @@ Write specs before implementation to clarify thinking. Update specs after implem
 
 | Situation | Action |
 |-----------|--------|
-| Starting new feature | Write spec first, then implement |
+| Starting new feature | Write spec first, then implement (under the lifecycle convention: write it in `specs/future/`, merge on ship) |
 | Documenting existing code | Create spec using template |
 | Checking if spec matches code | Compare to reality, fix discrepancies |
 | Codebase has no specs | Use `workflows/bootstrap.md` |
@@ -193,9 +193,10 @@ When user says "check specs", "health", or after significant work:
 1. **Mechanical pass:** if Node.js is available, run the bundled validator from the project root:
    `node [skill-dir]/scripts/validate-specs.mjs [spec-dir]`
    It deterministically reports ID format/uniqueness violations, missing core sections, thin error/edge tables, empty cells, placeholder paths, broken Features-table links, orphan feature specs, and broken `@spec` test references. Fix the ERRORs it reports; treat WARNs as input to steps 2–3. If Node is unavailable, perform the same checks manually with Glob/Grep.
-2. **Sync pass (auto-fix):** Glob (`specs/**/*.md`, `app_spec/**/*.md`); for each spec verify references exist (CODE-RULE.3) and replace placeholder paths (CODE-RULE.4).
+2. **Sync pass (auto-fix):** Glob (`specs/**/*.md`, `app_spec/**/*.md`); for each spec under `features/` verify references exist (CODE-RULE.3) and replace placeholder paths (CODE-RULE.4). Never apply code-existence checks to `future/` specs — they describe unbuilt intent. Under the lifecycle convention, `features/` divergence is always a bug.
 3. **Draft pass (confirm before applying):** for vague descriptions (CODE-RULE.6), empty intent cells (CODE-RULE.5), and fewer than 3 error/edge cases (CODE-RULE.7–8) — draft the missing content, present it to the user, and apply only what they approve.
 4. **Link hygiene:** every feature spec is linked from the overview's Features table, and every Features-table link resolves. Report orphans and fix broken links.
+5. **Lifecycle hygiene (if `future/` exists):** for each future item, check whether its stories already have passing `@spec` tests against the base spec — if so, it shipped without being merged: run its Merge Checklist and delete it (confirm with user).
 
 ---
 
@@ -258,6 +259,26 @@ Pause at natural breakpoints:
 - After implementation: "Did reality match the spec? What changed?"
 
 If something feels wrong, backtrack. Fixing a spec is cheaper than fixing code.
+
+---
+
+## Spec Lifecycle (Present/Future)
+
+An opt-in convention that splits specs by tense. Adopt it when you want `features/` to be literally true of the code at every commit; without it, specs may run ahead of code inside `features/` (the default v2 behavior).
+
+```
+specs/
+├── features/   PRESENT — always true of the code; divergence is always a bug
+└── future/     INTENT — one file per WORK ITEM (not per feature); never code-checked
+```
+
+**Rules:**
+
+1. **`features/` never diverges from code.** Under this convention there is no "spec is just ahead" state — any mismatch found by the sync pass is a bug to fix (in code, or in spec with a changelog entry if intent changed).
+2. **All unbuilt work lives in `future/`.** New feature → full spec via `templates/feature.template.md`, saved under `future/`. Change to an existing feature → a work-item delta via `templates/future.template.md` (e.g. `future/tasks-filtering.md`, never a shadow `future/tasks.md`). Full content rigor either way; only code-existence checks are waived.
+3. **Shipping = merging.** When implementation lands and tests pass: merge the delta's stories/REQs/errors/edges into the base spec (renumber REQ IDs into the base sequence), add a changelog entry, update the overview's Pipeline/Features tables, and **delete the future file**. Git history is the archive — completed proposals cannot go stale because completing them destroys them.
+
+**Conventions:** deltas list only NEW stories (reference existing ones in prose — the validator's global duplicate-ID index spans both directories); tests only ever reference `features/` paths in `@spec` headers (validator ERROR otherwise); `ls specs/future/` is the open-work list, and the optional overview `## Pipeline` table indexes it.
 
 ---
 

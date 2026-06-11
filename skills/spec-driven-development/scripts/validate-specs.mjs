@@ -24,6 +24,15 @@
  *                                file containing the referenced UserStory ID(s)
  *  11. WARN   placeholder-path   backticked path containing `path/to` — template placeholder
  *                                never replaced with a real path (fix via CODE-RULE.4)
+ *  12. ERROR  future-spec-ref    @spec references in test files must not point into
+ *                                <spec-dir>/future/ — tests verify present behavior only
+ *  13. ERROR  broken-link        overview.md Pipeline table links must resolve (same as 8);
+ *      WARN   pipeline-orphan    future/ files not linked from the Pipeline table
+ *                                (only when a Pipeline section exists)
+ *
+ * Lifecycle profile: files under <spec-dir>/future/ get all content checks, but
+ * missing core sections are WARN (not ERROR) — tight deltas may omit sections.
+ * Their UserStory IDs join the global duplicate index.
  *
  * Usage: node validate-specs.mjs [spec-dir] [--json]
  *   spec-dir defaults to `specs/`, falling back to `app_spec/` (relative to cwd).
@@ -116,11 +125,12 @@ function tablesIn(doc, start, end) {
 
 // --- Per-file checks --------------------------------------------------------
 
-function checkFeatureSpec(doc, storyIndex) {
-  // Rule 5: required sections
+function checkFeatureSpec(doc, storyIndex, { future = false } = {}) {
+  // Rule 5: required sections (WARN under the future/ lifecycle profile)
   for (const heading of REQUIRED_SECTIONS) {
     if (!sectionRange(doc, heading)) {
-      add("ERROR", doc.file, null, "missing-section", `missing required section "${heading}"`);
+      add(future ? "WARN" : "ERROR", doc.file, null, "missing-section",
+        `missing required section "${heading}"`);
     }
   }
 
@@ -233,13 +243,11 @@ function checkPlaceholderPaths(doc) {
   }
 }
 
-// Rules 8 + 9: overview Features table links resolve; no orphan feature specs
-function checkOverviewLinks(doc, featureFiles) {
-  const range = sectionRange(doc, "## Features");
-  if (!range) {
-    add("WARN", doc.file, null, "missing-section", 'overview.md has no "## Features" section');
-    return;
-  }
+// Validates all links in one overview section's tables; returns the set of
+// resolved link targets. Reports broken links as ERROR.
+function checkSectionLinks(doc, heading) {
+  const range = sectionRange(doc, heading);
+  if (!range) return null;
   const linked = new Set();
   for (const table of tablesIn(doc, ...range)) {
     for (const row of table.rows) {
@@ -251,10 +259,20 @@ function checkOverviewLinks(doc, featureFiles) {
           linked.add(resolved);
         } else {
           add("ERROR", doc.file, row.line + 1, "broken-link",
-            `Features table link "${m[1]}" does not resolve to an existing file`);
+            `${heading.replace("## ", "")} table link "${m[1]}" does not resolve to an existing file`);
         }
       }
     }
+  }
+  return linked;
+}
+
+// Rules 8 + 9: overview Features table links resolve; no orphan feature specs
+function checkOverviewLinks(doc, featureFiles) {
+  const linked = checkSectionLinks(doc, "## Features");
+  if (linked === null) {
+    add("WARN", doc.file, null, "missing-section", 'overview.md has no "## Features" section');
+    return;
   }
   for (const file of featureFiles) {
     if (!linked.has(resolve(file))) {
@@ -264,8 +282,20 @@ function checkOverviewLinks(doc, featureFiles) {
   }
 }
 
-// Rule 10: @spec references in test files
-function checkSpecRefs(root) {
+// Rule 13: optional Pipeline table — links resolve; future/ files are indexed there
+function checkPipelineLinks(doc, futureFiles) {
+  const linked = checkSectionLinks(doc, "## Pipeline");
+  if (linked === null) return; // Pipeline section is optional
+  for (const file of futureFiles) {
+    if (!linked.has(resolve(file))) {
+      add("WARN", file, null, "pipeline-orphan",
+        `not linked from overview.md's Pipeline table`);
+    }
+  }
+}
+
+// Rules 10 + 12: @spec references in test files
+function checkSpecRefs(root, futureDir) {
   const testFiles = [];
   (function walk(dir) {
     let entries;
@@ -286,6 +316,11 @@ function checkSpecRefs(root) {
       const m = line.match(/@spec\s+([^\s:]+):(\S.*)/);
       if (!m) return;
       const specPath = resolve(root, m[1]);
+      if (futureDir && (specPath === futureDir || specPath.startsWith(futureDir + "/"))) {
+        add("ERROR", testFile, i + 1, "future-spec-ref",
+          `@spec must not reference a future/ spec ("${m[1]}") — tests verify present behavior; merge the work item into features/ first`);
+        return;
+      }
       if (!specCache.has(specPath)) {
         specCache.set(specPath, existsSync(specPath) ? readFileSync(specPath, "utf8") : null);
       }
@@ -325,9 +360,12 @@ function main() {
 
   const overviewPath = join(specDir, "overview.md");
   const featuresDir = join(specDir, "features");
-  const featureFiles = existsSync(featuresDir)
-    ? readdirSync(featuresDir).filter((f) => f.endsWith(".md")).sort().map((f) => join(featuresDir, f))
+  const futureDir = join(specDir, "future");
+  const listMd = (dir) => existsSync(dir)
+    ? readdirSync(dir).filter((f) => f.endsWith(".md")).sort().map((f) => join(dir, f))
     : [];
+  const featureFiles = listMd(featuresDir);
+  const futureFiles = listMd(futureDir);
 
   const checkedFiles = [];
   const storyIndex = new Map();
@@ -338,6 +376,7 @@ function main() {
     checkEmptyCells(doc);
     checkPlaceholderPaths(doc);
     checkOverviewLinks(doc, featureFiles);
+    checkPipelineLinks(doc, futureFiles);
   } else {
     add("ERROR", overviewPath, null, "missing-overview", "overview.md not found in spec directory");
   }
@@ -353,7 +392,15 @@ function main() {
     add("WARN", featuresDir, null, "no-features", "no feature specs found in features/");
   }
 
-  checkSpecRefs(process.cwd());
+  for (const file of futureFiles) {
+    const doc = loadDoc(file);
+    checkedFiles.push(file);
+    checkFeatureSpec(doc, storyIndex, { future: true });
+    checkEmptyCells(doc);
+    checkPlaceholderPaths(doc);
+  }
+
+  checkSpecRefs(process.cwd(), existsSync(futureDir) ? resolve(futureDir) : null);
 
   // --- Report ---
   if (json) {

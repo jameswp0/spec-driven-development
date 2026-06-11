@@ -119,6 +119,8 @@ The template is two-tier: fill the **core sections** for every feature; add **op
 
 **Write to:** `specs/features/[feature-name].md` (adapt to project structure)
 
+Bootstrap documents *existing* code, so output goes to `features/` only. Aspirational items discovered along the way go to Future Considerations — or to `specs/future/` work items if the project uses the lifecycle convention (SKILL.md → Spec Lifecycle).
+
 ## Step 5: Verify
 
 For each spec:

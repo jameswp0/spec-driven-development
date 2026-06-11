@@ -17,13 +17,14 @@
 - Judgment calls — stale content, vague wording, and intent gaps belong to the LLM spec health check (steps 2–3)
 - Auto-fixing — the validator reports findings; it never edits files
 - Markdown style linting — handled by markdownlint/prettier
-- Validating overview.md content beyond the Features table (links and empty cells)
+- Validating overview.md content beyond the Features and Pipeline tables (links and empty cells)
 
 ---
 
 ## What It Does
 
-- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with 11 deterministic checks
+- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with 13 deterministic checks
+- Scans `<spec-dir>/future/*.md` work items with a relaxed lifecycle profile: missing core sections are WARN (not ERROR), all other content checks apply, and their UserStory IDs join the global duplicate index
 - Classifies every finding as ERROR (must fix) or WARN (input to the health check's sync/draft passes)
 - Prints findings grouped by file with line numbers and rule names, or as a JSON array with `--json`
 - Resolves the spec directory from the positional argument, falling back to `specs/`, then `app_spec/`
@@ -45,6 +46,9 @@
 | REQ-7 | `--json` must print findings as a JSON array of `{level, file, line, rule, message}` objects instead of the human-readable report | Must |
 | REQ-8 | Spec directory resolution: use the positional argument if given; otherwise try `specs/` then `app_spec/` relative to cwd; if none exists, print an error and exit 1 | Must |
 | REQ-9 | All parsing must skip lines inside ``` or ~~~ code fences so diagrams and examples never trigger findings | Must |
+| REQ-10 | Files under `<spec-dir>/future/` must be scanned with a relaxed profile: missing core sections are WARN (not ERROR); all other content checks (IDs, rows, cells, placeholder paths) apply; future UserStory IDs join the global duplicate-ID index | Must |
+| REQ-11 | `@spec` test references that point into `<spec-dir>/future/` must be an ERROR (`future-spec-ref`) — tests verify present behavior and may only reference `features/` specs | Must |
+| REQ-12 | If overview.md has a `## Pipeline` section, its table links must resolve to existing files (ERROR) and future files not linked from it are WARN (`pipeline-orphan`); with no Pipeline section, future files produce no orphan findings | Should |
 
 ---
 
@@ -56,8 +60,8 @@
 Spec Health Check — step 1
     → node skills/spec-driven-development/scripts/validate-specs.mjs [spec-dir]
     → resolve spec dir (arg → specs/ → app_spec/)
-    → load overview.md + features/*.md (fence-aware)
-    → run checks 1–11 (IDs, sections, tables, placeholder paths, links, @spec refs)
+    → load overview.md + features/*.md + future/*.md (fence-aware; future/ gets the relaxed profile)
+    → run checks 1–13 (IDs, sections, tables, placeholder paths, links, @spec refs, future refs, Pipeline)
     → findings reported (grouped by file, or --json)
     → ERRORs fixed mechanically; WARNs feed health check steps 2–3
 ```
@@ -87,6 +91,9 @@ Spec Health Check — step 1
 | features/ directory missing or empty | WARN `no-features`; overview checks still run |
 | REQ numbering has a gap (REQ-3 then REQ-5) | WARN `req-gap`, not an error — flagged for the health check, never blocks |
 | One file mixes UserStory feature codes | WARN `userstory-mixed` listing the codes found |
+| future/ file omits core sections (tight delta) | WARN `missing-section`, not ERROR — the relaxed lifecycle profile tolerates section-less deltas |
+| @spec reference points into future/ | ERROR `future-spec-ref` — tests verify present behavior; point the header at the base spec in features/ |
+| Overview has no Pipeline section but future/ files exist | No orphan findings for future files — `pipeline-orphan` applies only when a Pipeline section exists |
 
 ---
 
@@ -96,7 +103,7 @@ Spec Health Check — step 1
 
 | Path | Purpose |
 |------|---------|
-| `skills/spec-driven-development/scripts/validate-specs.mjs` | The entire validator: fence-aware Markdown helpers, 11 checks, report/JSON output |
+| `skills/spec-driven-development/scripts/validate-specs.mjs` | The entire validator: fence-aware Markdown helpers, 13 checks, report/JSON output |
 
 ### Entry Points
 
@@ -154,3 +161,4 @@ No active bugs.
 |------|--------|--------|
 | 2026-06-11 | Initial spec | validate-specs.mjs shipped in methodology v2 |
 | 2026-06-11 | Added check 11: placeholder-path (backticked "path/to", WARN) | Gap found during v2 behavioral testing |
+| 2026-06-11 | Added REQ-10–12 and checks 12–13: relaxed future/ profile, future-spec-ref ERROR, Pipeline links + pipeline-orphan; 13 checks total | Merged spec-lifecycle work item (lifecycle's first execution) |

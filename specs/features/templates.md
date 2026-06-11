@@ -23,12 +23,13 @@
 
 ## What It Does
 
-- Provides `overview.template.md`: a complete project-level spec template with all sections pre-structured (purpose, user stories, architecture diagrams, tech stack, data flow, cross-cutting concerns, features table, development setup, deployment, decisions, constraints, roadmap, changelog)
+- Provides `overview.template.md`: a complete project-level spec template with all sections pre-structured (purpose, user stories, architecture diagrams, tech stack, data flow, cross-cutting concerns, features table, optional Pipeline table for `specs/future/` work items, development setup, deployment, decisions, constraints, roadmap, changelog)
 - Provides `feature.template.md`: a two-tier feature spec template — **core sections** required in every spec (User Stories, Out of Scope, What It Does, Requirements, Error Cases, Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog) and **optional sections** each gated by an explicit *Include when* test (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes)
+- Provides `future.template.md`: a work-item delta template for changes to existing features under the `specs/future/` lifecycle — Target, Why, new User Stories only, Out of Scope, Requirements with an Action column, Error Cases, Edge Cases, Key Decisions, Merge Checklist, Changelog — deleted on merge
 - The Implementation section is a file map (path + one-line purpose) plus entry points — no mirrored signatures, props, types, or schemas
 - Both spec templates include instructional comments that guide spec authors on what content belongs in each section
 - The feature template includes the `UserStory-[feature]-##` format reminder and acceptance criteria note
-- Provides `CLAUDE-SDD.md`: a CLAUDE.md starter for new projects that binds the SDD workflow — spec-first rule, spec-is-truth, sync-after-implementing, DRAFT confirmation, intent routing table, and validator/lint quality gates — with placeholders for project specifics
+- Provides `CLAUDE-SDD.md`: a CLAUDE.md starter for new projects that binds the SDD workflow — spec-first rule (routed through `specs/future/`), spec-is-truth, sync-after-implementing, DRAFT confirmation, intent routing table, and validator/lint quality gates — with placeholders for project specifics
 
 ---
 
@@ -36,14 +37,15 @@
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | overview.template.md must include all required overview sections: Purpose, User Stories, System Architecture, Tech Stack, Data Flow, Cross-Cutting Concerns, Features table, Development, Key Decisions, Changelog | Must |
+| REQ-1 | overview.template.md must include all required overview sections: Purpose, User Stories, System Architecture, Tech Stack, Data Flow, Cross-Cutting Concerns, Features table, Development, Key Decisions, Changelog — plus an optional Pipeline section (*Include when*: project uses the `specs/future/` lifecycle) listing work items with links | Must |
 | REQ-2 | feature.template.md must declare the core sections required in every spec: User Stories (with ID format), Out of Scope, What It Does, Requirements (with ID and Priority columns), Error Cases (with 4 columns), Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog | Must |
 | REQ-3 | Each optional section (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) must carry an explicit *Include when* test, and the Implementation section must be a file map (Path + Purpose) plus Entry Points — no component/hook/handler/schema tables | Must |
 | REQ-4 | Both templates must use placeholder text (e.g., [Feature Name], [field1]) that makes the structure clear without implying real content | Must |
 | REQ-5 | The feature template must include the UserStory ID format reminder (`UserStory-[feature]-##`) and the acceptance criteria note about tightening requirements | Must |
 | REQ-6 | The overview template architecture section must include an ASCII diagram with component boxes and arrows | Should |
 | REQ-7 | The feature template's optional States & Transitions section must include State Machine and State Descriptions subsections | Should |
-| REQ-8 | CLAUDE-SDD.md must state the non-negotiable workflow rules (no feature work without a spec, spec is truth in disputes, sync after implementing, intent edits need confirmation, trivial-change exemption), an intent routing table, and the validator + markdownlint quality-gate commands | Must |
+| REQ-8 | CLAUDE-SDD.md must state the non-negotiable workflow rules (no feature work without a spec, spec is truth in disputes, sync after implementing, intent edits need confirmation, trivial-change exemption), an intent routing table that routes "new feature requested" to writing a spec under `specs/future/` first and "just finished implementing" to the merge-and-delete step, and the validator + markdownlint quality-gate commands | Must |
+| REQ-9 | future.template.md must exist for change-type work items with: Target, Why, new User Stories (existing ones referenced in prose), Out of Scope, new/modified Requirements (with Action column), Error Cases, Edge Cases, Key Decisions, Merge Checklist, Changelog | Must |
 
 ---
 
@@ -56,6 +58,7 @@ skills/spec-driven-development/
 └── templates/
     ├── overview.template.md    ← used for: specs/overview.md or app_spec/overview.md
     ├── feature.template.md     ← used for: specs/features/*.md or app_spec/features/*.md
+    ├── future.template.md      ← used for: specs/future/[work-item].md change deltas
     └── CLAUDE-SDD.md           ← copied to a new project's root as CLAUDE.md
 ```
 
@@ -104,6 +107,7 @@ Developer or agent wants to create a new spec
 | Overview spec has no external services | External AI row in tech stack deleted; layer responsibilities table adjusted |
 | Feature is very simple (1 user story, 2 requirements) | Core-only spec with no optional sections — complete by design, not thin |
 | Project already has a CLAUDE.md | CLAUDE-SDD.md's workflow sections are merged into the existing file rather than replacing it; project-specific content is preserved |
+| Work item named after its feature (e.g. `future/tasks.md`) | Not allowed — future files are work-item scoped (`future/tasks-filtering.md`, never `future/tasks.md`); a feature-scoped shadow file creates two specs describing one feature |
 
 ---
 
@@ -115,6 +119,7 @@ Developer or agent wants to create a new spec
 skills/spec-driven-development/templates/
 ├── overview.template.md        [standalone; referenced by SKILL.md and bootstrap.md]
 ├── feature.template.md         [standalone; referenced by SKILL.md and bootstrap.md]
+├── future.template.md          [standalone; referenced by SKILL.md Spec Lifecycle and CLAUDE-SDD.md]
 └── CLAUDE-SDD.md               [standalone; copied into user projects as CLAUDE.md]
 ```
 
@@ -124,8 +129,8 @@ skills/spec-driven-development/templates/
 |---------|---------|
 | Project | One-two sentence project description placeholder |
 | Spec-Driven Workflow (Core) | The core loop and five non-negotiable rules (spec-first, spec is truth, sync, DRAFT confirmation, trivial exemption) |
-| Spec Location | Spec directory layout and ID conventions |
-| When To Do What | Intent routing table binding situations to SDD actions |
+| Spec Location | Spec directory layout (present-tense `features/`, unbuilt `future/`) and ID conventions |
+| When To Do What | Intent routing table binding situations to SDD actions — new features route to `specs/future/`, finished work to merge-and-delete |
 | Tests Trace to Specs | @spec headers, REQ coverage, anti-pattern pointers |
 | Quality Gates | Validator and markdownlint/prettier commands to run before committing spec changes |
 | Project Specifics | Build/test/lint command placeholders |
@@ -144,6 +149,7 @@ skills/spec-driven-development/templates/
 | API Overview | Base URLs, auth header, common response codes, endpoints summary |
 | Data Model Overview | ERD diagram + Core Entities table |
 | Features | Table linking to feature specs |
+| Pipeline | Optional (*Include when*: project uses the `specs/future/` lifecycle) — Work Item, Target Feature, Spec link; rows removed on merge |
 | Development | Prerequisites, Setup, Commands, Environment Variables |
 | Deployment | Environments table, Deploy Process |
 | Key Decisions | ADR-style decisions with context, options, decision, consequences |
@@ -171,6 +177,22 @@ skills/spec-driven-development/templates/
 | Known Issues | Core | BUG-[feature]-## table with severity |
 | Future Considerations | Core | Unchecked todo list |
 | Changelog | Core | Date/Change/Reason table |
+
+### Template Structure: future.template.md
+
+| Section | Purpose |
+|---------|---------|
+| Header notes | Lifecycle note (delete on merge; git history is the archive) and work-item-scoped naming rule |
+| Target | Type (change to existing feature), base spec path(s), optional milestone |
+| Why | 1–3 sentences of motivation |
+| User Stories | New stories only, numbered from the base spec's highest ID; existing stories referenced in prose |
+| Out of Scope | What the work item explicitly excludes |
+| Requirements | REQ table with Priority and Action column (New / Modifies base REQ-#); IDs renumbered into the base sequence on merge |
+| Error Cases | 4-column table for the new/changed behavior only |
+| Edge Cases | 2-column table for the new/changed behavior only |
+| Key Decisions | ADR-style per decision, with consequences for the base feature |
+| Merge Checklist | Run when shipping: passing tests against the base spec path, merge + renumber, base changelog, overview tables, delete this file |
+| Changelog | Date/Change/Reason table |
 
 ---
 
@@ -250,3 +272,4 @@ No active bugs.
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
 | 2026-06-11 | Documented two-tier template (core/optional with Include-when tests), file-map-only Implementation section, new Key Decisions; removed minimal-variant todo (delivered by two-tier design) | Spec synced to methodology v2 template |
 | 2026-06-11 | Added CLAUDE-SDD.md starter (UserStory-templates-04, REQ-8) | New CLAUDE.md starter binds SDD workflow into new projects |
+| 2026-06-11 | Added future.template.md (REQ-9), overview Pipeline section (REQ-1), CLAUDE-SDD lifecycle routing (REQ-8), work-item-scoped naming edge case | Merged spec-lifecycle work item (lifecycle's first execution) |

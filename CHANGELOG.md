@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.1.0 — 2026-06-11
+
+Spec lifecycle: split specs by tense (opt-in convention).
+
+### Added
+
+- **`specs/future/` lifecycle.** `specs/features/` is present tense — always true of the code, divergence is always a bug. Unbuilt work lives in `specs/future/` as work-item specs (new feature = full spec; change = delta via the new `templates/future.template.md`). Shipping = merge into the base spec + changelog + delete the future file; git history is the archive. Fixes the v2 sync-pass ambiguity between intended-ahead and drift. `ls specs/future/` is the open-work list.
+- Validator: future profile (missing sections WARN, not ERROR; all other content checks apply; story IDs join the global duplicate index), check 12 `future-spec-ref` (tests must not reference `future/` specs), check 13 Pipeline table links + `pipeline-orphan`.
+- `overview.template.md`: optional Pipeline section indexing future work items.
+- Health check step 5: lifecycle hygiene — flags shipped-but-unmerged future items.
+- CLAUDE-SDD.md, bootstrap, and todos workflows route through the lifecycle.
+
 ## 2.0.0 — 2026-06-11
 
 Methodology v2. Breaking changes to rule numbering and template structure.

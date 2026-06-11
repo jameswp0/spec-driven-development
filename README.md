@@ -4,9 +4,13 @@ A Claude Code skill and agent for spec-driven development. Specs are the source 
 
 → [Install](INSTALL.md)
 
-## What's New in 2.0
+## What's New
 
 See [CHANGELOG.md](CHANGELOG.md) for full details.
+
+**2.1 — Spec lifecycle (opt-in):** `specs/features/` is present tense (always true of the code — divergence is always a bug); unbuilt work lives in `specs/future/` as work-item specs that merge into the base spec and are deleted when shipped. `ls specs/future/` is your progress tracker.
+
+**2.0:**
 
 - **Two-tier feature template**: core sections are always required; optional sections (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) each have an "Include when" test and are deleted otherwise
 - **File-map implementation docs**: Implementation sections list paths, purposes, and entry points only—signatures, props, and schemas are never mirrored into specs
@@ -254,6 +258,7 @@ skills/spec-driven-development/
 ├── templates/
 │   ├── overview.template.md # Project-level spec template
 │   ├── feature.template.md  # Feature spec template
+│   ├── future.template.md   # Work-item delta template (spec lifecycle)
 │   └── CLAUDE-SDD.md        # CLAUDE.md starter for new projects
 ├── workflows/
 │   ├── bootstrap.md         # Generate specs for existing codebase

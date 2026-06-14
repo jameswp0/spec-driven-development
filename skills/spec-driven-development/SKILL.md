@@ -10,7 +10,7 @@ version: 2.1.0
 
 - [First: Read Templates](#first-read-templates)
 - [Quality Rules](#quality-rules)
-- [Principle](#principle)
+- [Principle](#principle) · [Spec Primitives](#spec-primitives)
 - [Intent Detection](#intent-detection) · [Spec Health Check](#spec-health-check)
 - [The Flow](#the-flow) · [Spec Lifecycle](#spec-lifecycle-presentfuture)
 - [Process Notes](#process-notes) · [Quality Checklist](#quality-checklist)
@@ -31,6 +31,7 @@ version: 2.1.0
 | Documenting implementation details | `templates/feature.template.md` - Implementation section |
 | Bootstrapping new project | `workflows/bootstrap.md` |
 | Analyzing todos | `workflows/todos.md` |
+| Migrating to global IDs | `workflows/migrate.md` |
 
 **Overview spec**: One per project. System architecture, tech stack, data flow, cross-cutting concerns.
 
@@ -121,7 +122,7 @@ The spec agent enforces 17 rules: CODE-RULE.1–8 and TEST-RULE.1–9.
 - **Example:** See `references/test-anti-patterns.md`
 
 **TEST-RULE.5: E2E @spec References**
-- **What:** Tests link to valid UserStory IDs
+- **What:** Tests link to valid spec IDs (UserStory, REQ, …), resolved by ID
 - **Why:** Ensures traceability from spec to test
 - **Enforced:** Validated in Test Health Check
 - **Format:** See `references/e2e-test-format.md`
@@ -168,6 +169,41 @@ Write specs before implementation to clarify thinking. Update specs after implem
 
 ---
 
+## Spec Primitives
+
+Identity work — assigning IDs, finding references, checking integrity — is mechanical, so it belongs to a script, not to your judgment. `scripts/spec-fns.mjs` is a zero-dependency, **stateless** query layer: the specs and code are the only source of truth, scanned live on every call. There is no database to keep in sync. You author intent and edit files; the script answers the questions you cannot answer reliably by hand.
+
+**Two invariants:**
+
+- **Single home** — every ID is *defined* exactly once: a Requirements row, a User Stories list item, a Known Issues row. Any other mention is a *link* and does not count as a definition.
+- **Resolve by ID** — references point at an ID, not a path. The path in an `@spec` tag is advisory (the script keeps it honest); the ID is identity, so folds and renames never break a reference.
+
+**IDs are global per type** — `REQ-###`, `UserStory-###`, `BUG-###` (and, where used, `ERR-###`, `EDGE-###`, `DEC-###`). The number is unique across the whole spec set, never per-file.
+
+**The four functions:**
+
+| Call | Returns / does |
+|------|----------------|
+| `node [skill-dir]/scripts/spec-fns.mjs next <type> [n]` | the next free global ID(s) — mint without scanning |
+| `node [skill-dir]/scripts/spec-fns.mjs loc <id>` | every location of an ID, tagged `def` / `ref` / `link` |
+| `node [skill-dir]/scripts/spec-fns.mjs health` | the worklist: `multi_home`, `dangling`, `uncovered` findings |
+| `node [skill-dir]/scripts/spec-fns.mjs sed <old=new ...>` | exact, exhaustive `sed` commands for a bulk ID change |
+
+**When to call each:**
+
+| Workflow | Call |
+|----------|------|
+| Add a story or requirement | `next` → write the definition, tag the test with `@spec <id>` |
+| Fold or split a spec | *nothing* — move the markdown block; IDs and references resolve unchanged |
+| Retire intent | `loc` → review the affected code/tests, then edit |
+| Bug fixed | edit the Known Issues row's status to `resolved` (keep the row) |
+| Rename / dedup / migrate IDs | `sed` → review and run the emitted commands |
+| Health check / CI | `health` → resolve each finding |
+
+The script **detects; you resolve.** `multi_home` and `dangling` are judgment calls (which definition is the real home? was this renamed, deleted, or a typo?). `uncovered` means the intent has no test — add one, or set its verify-mode.
+
+---
+
 ## Intent Detection
 
 | Situation | Action |
@@ -176,6 +212,7 @@ Write specs before implementation to clarify thinking. Update specs after implem
 | Documenting existing code | Create spec using template |
 | Checking if spec matches code | Compare to reality, fix discrepancies |
 | Codebase has no specs | Use `workflows/bootstrap.md` |
+| Adopting global IDs / "migrate specs" | Use `workflows/migrate.md` |
 | Deciding what to work on | Use `workflows/todos.md` |
 | Spec may be outdated | Update to reflect current state |
 | Before committing specs | Run markdown lint |
@@ -190,13 +227,10 @@ Don't overthink routing. Understand what they need, do it.
 
 When user says "check specs", "health", or after significant work:
 
-1. **Mechanical pass:** if Node.js is available, run the bundled validator from the project root:
-   `node [skill-dir]/scripts/validate-specs.mjs [spec-dir]`
-   It deterministically reports ID format/uniqueness violations, missing core sections, thin error/edge tables, empty cells, placeholder paths, broken Features-table links, orphan feature specs, and broken `@spec` test references. Fix the ERRORs it reports; treat WARNs as input to steps 2–3. If Node is unavailable, perform the same checks manually with Glob/Grep.
-2. **Sync pass (auto-fix):** Glob (`specs/**/*.md`, `app_spec/**/*.md`); for each spec under `features/` verify references exist (CODE-RULE.3) and replace placeholder paths (CODE-RULE.4). Never apply code-existence checks to `future/` specs — they describe unbuilt intent. Under the lifecycle convention, `features/` divergence is always a bug.
-3. **Draft pass (confirm before applying):** for vague descriptions (CODE-RULE.6), empty intent cells (CODE-RULE.5), and fewer than 3 error/edge cases (CODE-RULE.7–8) — draft the missing content, present it to the user, and apply only what they approve.
-4. **Link hygiene:** every feature spec is linked from the overview's Features table, and every Features-table link resolves. Report orphans and fix broken links.
-5. **Lifecycle hygiene (if `future/` exists):** for each future item, check whether its stories already have passing `@spec` tests against the base spec — if so, it shipped without being merged: run its Merge Checklist and delete it (confirm with user).
+1. **Run the primitives:** `node [skill-dir]/scripts/spec-fns.mjs health` reports `multi_home` (an ID defined in more than one place), `dangling` (a reference resolving to no definition), and `uncovered` (defined intent with no test). It detects; you resolve. `multi_home`/`dangling` are judgment calls — investigate why (renamed? deleted? incomplete merge? typo?), then fix the home or repoint the reference. (If Node is unavailable, reproduce these checks with Glob/Grep.)
+2. **Sync pass (auto-fix):** for each spec under `features/`, verify the file paths and entry points it names still exist; never code-check `future/` specs — they describe unbuilt intent. Under the lifecycle convention, `features/` divergence is always a bug.
+3. **Draft pass (confirm before applying):** for vague descriptions (CODE-RULE.6), empty intent cells (CODE-RULE.5), and fewer than 3 error/edge cases (CODE-RULE.7–8), and for each `uncovered` finding — draft the missing content (or add a test / set verify-mode), present it to the user, and apply only what they approve.
+4. **Lifecycle hygiene (if `future/` exists):** a `multi_home` finding spanning `future/` and `features/` means a work item shipped without its future file being deleted — run its Merge Checklist and delete it (confirm with user).
 
 ---
 
@@ -276,9 +310,9 @@ specs/
 
 1. **`features/` never diverges from code.** Under this convention there is no "spec is just ahead" state — any mismatch found by the sync pass is a bug to fix (in code, or in spec with a changelog entry if intent changed).
 2. **All unbuilt work lives in `future/`, granularly.** New feature → full spec via `templates/feature.template.md`, saved under `future/`. Change to an existing feature → a work-item delta via `templates/future.template.md` (e.g. `future/tasks-filtering.md`, never a shadow `future/tasks.md`). Work items are sized to implement and merge in one cycle — split any item that grows beyond that. **Readiness gradient:** the item you're about to build needs full content rigor (stories, REQs, ≥3 errors/edges); distant roadmap items may start thin (missing-section WARNs in `future/` are tolerated for exactly this) and are tightened to full rigor before implementation starts. Only code-existence checks are ever waived.
-3. **Shipping = merging.** When implementation lands and tests pass: merge the delta's stories/REQs/errors/edges into the base spec (renumber REQ IDs into the base sequence), add a changelog entry, update the overview's Pipeline/Features tables, and **delete the future file**. Git history is the archive — completed proposals cannot go stale because completing them destroys them.
+3. **Shipping = merging.** When implementation lands and tests pass: move the delta's stories/REQs/errors/edges into the base spec (IDs are global and move unchanged — no renumbering), add a changelog entry, update the overview's Pipeline/Features tables, and **delete the future file**. Git history is the archive — completed proposals cannot go stale because completing them destroys them.
 
-**Conventions:** deltas list only NEW stories (reference existing ones in prose — the validator's global duplicate-ID index spans both directories); tests only ever reference `features/` paths in `@spec` headers (validator ERROR otherwise); `ls specs/future/` is the open-work list, and the optional overview `## Pipeline` table indexes it.
+**Conventions:** deltas list only NEW stories (reference existing ones in prose — single-home spans both directories); tests reference intent by ID, and a ref resolving to a `future/` home is `pending_merge` (fine while building; it clears when the work item merges into `features/`); `ls specs/future/` is the open-work list, and the optional overview `## Pipeline` table indexes it.
 
 ---
 
@@ -296,8 +330,8 @@ Critical items before finishing:
 
 - [ ] No empty sections or placeholders (CODE-RULE.5)
 - [ ] No vague descriptions — specific and observable (CODE-RULE.6)
-- [ ] User stories have unique IDs in correct format: `UserStory-[feature]-##`
-- [ ] Requirements have unique IDs (`REQ-##`, sequential within this feature spec) and Priority (Must/Should/Could)
+- [ ] User stories have unique IDs in correct format: `UserStory-###` (global; mint with `spec-fns.mjs next userstory`)
+- [ ] Requirements have unique IDs (`REQ-###`, global; mint with `spec-fns.mjs next req`) and Priority (Must/Should/Could)
 - [ ] At least 3 error cases: Error, Cause, User Sees, Recovery (CODE-RULE.7)
 - [ ] At least 3 edge cases: Scenario, Expected Behavior (CODE-RULE.8)
 - [ ] All file paths verified to exist in codebase (CODE-RULE.3, 4)
@@ -373,16 +407,16 @@ Bugs live in feature specs under "Known Issues".
 ### When You Find a Bug
 
 1. Identify which feature spec it belongs to
-2. Add to spec's Known Issues table
-3. Assign ID: BUG-[feature]-## (sequential)
+2. Add to spec's Known Issues table (include a status column — `open`)
+3. Assign ID: `BUG-###` (global; mint with `spec-fns.mjs next bug`)
 4. Link to REQ if it violates a requirement
-5. Add changelog entry: "Added BUG-[feature]-##: [description]"
+5. Add changelog entry: "Added BUG-###: [description]"
 
 ### When You Fix a Bug
 
 1. Verify the fix works
-2. Remove row from Known Issues table
-3. Add changelog entry: "Fixed BUG-[feature]-##: [description]"
+2. Set the Known Issues row's status to `resolved` — keep the row so regression-test `@spec BUG-###` references still resolve (removing it orphans them)
+3. Add changelog entry: "Fixed BUG-###: [description]"
 
 ### Severity Guide
 
@@ -398,11 +432,11 @@ Don't wait for explicit "report bug". Trigger bug tracking when:
 
 | Situation | Action |
 |-----------|--------|
-| Test fails unexpectedly | Check Known Issues. If not listed, ask: "Should I log this as BUG-[feature]-##?" |
+| Test fails unexpectedly | Check Known Issues. If not listed, ask: "Should I log this as BUG-###?" |
 | User says "broken", "doesn't work", "wrong" | Start bug logging flow |
-| Implementation can't meet a REQ | Ask: "REQ-## can't be met as specified. Log as bug or update spec?" |
+| Implementation can't meet a REQ | Ask: "REQ-### can't be met as specified. Log as bug or update spec?" |
 | Spot defect during code review | "Found issue: [description]. Add to Known Issues?" |
-| Feature worked before, now doesn't | "Regression detected. Log as BUG-[feature]-##?" |
+| Feature worked before, now doesn't | "Regression detected. Log as BUG-###?" |
 
 ---
 
@@ -428,9 +462,9 @@ After generating tests, run Test Health Check to validate test quality and preve
    - Reports violations with file:line
    - See `references/test-anti-patterns.md` for complete patterns
 
-4. **TEST-RULE.5:** Validate @spec references
-   - Verifies spec files and UserStory IDs exist
-   - Reports broken references
+4. **TEST-RULE.5:** Validate @spec references — `scripts/spec-fns.mjs health`
+   - Resolves every @spec ID (UserStory, REQ, …) to its single home
+   - Reports `dangling` (no home), `multi_home` (duplicate), and `pending_merge` (future/) references
 
 5. **TEST-RULE.6-9:** Detect LLM anti-patterns
    - Happy path bias (<3 error cases)
@@ -453,7 +487,7 @@ The spec records **where and why**; the code records **what and how**.
 
 Document a **file map** (path + one-line purpose) and the feature's **entry points** (routes, handlers, commands). Do not mirror signatures, props, types, or schemas into the spec — they drift the moment code changes, and the code is already their source of truth.
 
-Update when: files are added, moved, or removed; entry points change.
+Update when: files are added, moved, or removed; entry points change. To answer "where is this requirement implemented" without a hand-maintained list, `scripts/spec-fns.mjs loc <id>` returns every `@spec` back-reference live (they travel with the code, so they can't drift).
 
 **Format:** `templates/feature.template.md` → Implementation section.
 
@@ -468,6 +502,9 @@ Generate specs for an existing codebase.
 
 **Todo analysis:** `workflows/todos.md`
 Dependency mapping, YAGNI filtering, prioritization.
+
+**Migrate:** `workflows/migrate.md`
+Convert per-feature IDs to global IDs (single-home + resolve-by-id), via the `spec-fns.mjs` primitives.
 
 ---
 

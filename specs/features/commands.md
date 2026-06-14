@@ -6,9 +6,9 @@
 
 ## User Stories
 
-- UserStory-commands-01: As a developer, I can type `/sdd bootstrap` in a Claude Code conversation so that the agent is launched with relevant context without me manually summarizing what I was working on
-- UserStory-commands-02: As a developer, I can use one command for every SDD invocation so that I never have to choose between a quick alias and a context-rich variant — `/sdd` always summarizes context
-- UserStory-commands-03: As a developer, I can pass any natural-language request after the command so that the agent handles the full range of SDD operations without me memorizing specific syntax
+- UserStory-004: As a developer, I can type `/sdd bootstrap` in a Claude Code conversation so that the agent is launched with relevant context without me manually summarizing what I was working on
+- UserStory-005: As a developer, I can use one command for every SDD invocation so that I never have to choose between a quick alias and a context-rich variant — `/sdd` always summarizes context
+- UserStory-006: As a developer, I can pass any natural-language request after the command so that the agent handles the full range of SDD operations without me memorizing specific syntax
 
 ---
 
@@ -34,11 +34,11 @@
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | commands/sdd.md must use `allowed-tools: Task` frontmatter so the command always launches the agent and never answers inline | Must |
-| REQ-2 | The command must instruct Claude to summarize the last 3-5 turns before calling the agent, including: what was being worked on, what was completed or attempted, any errors or test failures | Must |
-| REQ-3 | The command must pass $ARGUMENTS as the Request field so the developer's natural language request reaches the agent | Must |
-| REQ-4 | The command must pass `Context: (none — fresh conversation)` when there is no prior conversation to summarize | Must |
-| REQ-5 | The command must specify `subagent_type="spec-driven-development"` so the correct agent is launched | Must |
+| REQ-009 | commands/sdd.md must use `allowed-tools: Task` frontmatter so the command always launches the agent and never answers inline | Must |
+| REQ-010 | The command must instruct Claude to summarize the last 3-5 turns before calling the agent, including: what was being worked on, what was completed or attempted, any errors or test failures | Must |
+| REQ-011 | The command must pass $ARGUMENTS as the Request field so the developer's natural language request reaches the agent | Must |
+| REQ-012 | The command must pass `Context: (none — fresh conversation)` when there is no prior conversation to summarize | Must |
+| REQ-013 | The command must specify `subagent_type="spec-driven-development"` so the correct agent is launched | Must |
 
 ---
 
@@ -154,9 +154,9 @@ User types /sdd [request]
 
 ### Critical Paths
 
-1. UserStory-commands-01: Type /sdd bootstrap mid-conversation → verify context summarized → agent launched → specs created → covers REQ-1, REQ-2, REQ-5
-2. UserStory-commands-02: Type /sdd at conversation start → verify `Context: (none — fresh conversation)` passed → agent proceeds on request alone → covers REQ-2, REQ-4
-3. UserStory-commands-03: Type /sdd [any natural language request] → verify $ARGUMENTS passed correctly → agent receives full request → covers REQ-3
+1. UserStory-004: Type /sdd bootstrap mid-conversation → verify context summarized → agent launched → specs created → covers REQ-009, REQ-010, REQ-013
+2. UserStory-005: Type /sdd at conversation start → verify `Context: (none — fresh conversation)` passed → agent proceeds on request alone → covers REQ-010, REQ-012
+3. UserStory-006: Type /sdd [any natural language request] → verify $ARGUMENTS passed correctly → agent receives full request → covers REQ-011
 
 ### Not Worth Testing
 

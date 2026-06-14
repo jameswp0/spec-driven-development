@@ -13,11 +13,11 @@
 
 ## User Stories
 
-- UserStory-[feature]-01: As a [user type], I can [action] so that [benefit]
-- UserStory-[feature]-02: As a [user type], I can [action] so that [benefit]
-- UserStory-[feature]-03: As a [user type], I can [action] so that [benefit]
+- UserStory-001: As a [user type], I can [action] so that [benefit]
+- UserStory-002: As a [user type], I can [action] so that [benefit]
+- UserStory-003: As a [user type], I can [action] so that [benefit]
 
-> **Format:** `UserStory-[feature]-[##]` (use a short lowercase feature code, e.g. `chat`, `kanban`) enables E2E tests to reference specific stories via `@spec` headers.
+> **Format:** `UserStory-###` — a global number, unique across the whole spec set (never per-feature). Mint with `scripts/spec-fns.mjs next userstory`; never hand-assign. E2E tests reference a story via `@spec UserStory-###`.
 
 > **Acceptance criteria:** The Requirements, Error Cases, and Edge Cases sections below are the acceptance criteria for these stories. Before implementation: could Claude satisfy the story text while building the wrong thing? If yes, tighten the requirements or add a no-go above.
 
@@ -46,12 +46,14 @@ High-level behavior description. What the user experiences.
 
 Testable statements. Each should map to a test case.
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| REQ-1 | [Testable statement] | Must |
-| REQ-2 | [Testable statement] | Must |
-| REQ-3 | [Testable statement] | Should |
-| REQ-4 | [Testable statement] | Could |
+| ID | Requirement | Priority | Verify |
+|----|-------------|----------|--------|
+| REQ-001 | [Testable statement] | Must | unit |
+| REQ-002 | [Testable statement] | Must | e2e |
+| REQ-003 | [Testable statement] | Should | unit |
+| REQ-004 | [Testable statement] | Could | manual |
+
+> **IDs** are global — `REQ-###`, mint with `scripts/spec-fns.mjs next req`, never per-feature. **Verify** records how each requirement is checked (`unit` / `e2e` / `manual` / `none`) and drives coverage: `manual`/`none` are reported, not counted as gaps.
 
 ---
 
@@ -148,11 +150,13 @@ Model A (1) ──────── (n) Model B
 
 ## Error Cases
 
-| Error | Cause | User Sees | Recovery |
-|-------|-------|-----------|----------|
-| Network failure | No connection | Toast: "Connection lost" | Auto-retry 3x, then manual |
-| Validation error | Invalid input | Inline error message | Fix input, resubmit |
-| Server error | Backend failure | Toast: "Something went wrong" | Retry button |
+| ID | Error | Cause | User Sees | Recovery |
+|----|-------|-------|-----------|----------|
+| ERR-001 | Network failure | No connection | Toast: "Connection lost" | Auto-retry 3x, then manual |
+| ERR-002 | Validation error | Invalid input | Inline error message | Fix input, resubmit |
+| ERR-003 | Server error | Backend failure | Toast: "Something went wrong" | Retry button |
+
+> IDs are global `ERR-###` (mint with `spec-fns.mjs next error`); tests reference them via `@spec ERR-###` so error-case coverage is visible.
 
 ---
 
@@ -160,11 +164,11 @@ Model A (1) ──────── (n) Model B
 
 Behaviors that aren't obvious. Document what happens.
 
-| Scenario | Expected Behavior |
-|----------|-------------------|
-| Empty input | Submit disabled, no error shown |
-| Rapid clicks | Debounced, only first action fires |
-| Concurrent edits | Last write wins, no conflict UI |
+| ID | Scenario | Expected Behavior |
+|----|----------|-------------------|
+| EDGE-001 | Empty input | Submit disabled, no error shown |
+| EDGE-002 | Rapid clicks | Debounced, only first action fires |
+| EDGE-003 | Concurrent edits | Last write wins, no conflict UI |
 
 ---
 
@@ -206,7 +210,7 @@ Where this feature starts — routes, handlers, commands, scheduled jobs.
 
 Architectural choices and their rationale.
 
-### Decision 1: [Choice Made]
+### DEC-001: [Choice Made]
 
 **Context:** What problem were we solving?
 
@@ -229,13 +233,13 @@ Architectural choices and their rationale.
 
 E2E tests for user stories that span multiple systems:
 
-1. UserStory-[feature]-01: [Journey description] → covers REQ-1, REQ-2
+1. UserStory-001: [Journey description] → covers REQ-001, REQ-002
 
 ### Unit Tests
 
 Requirements testable in isolation:
 
-- REQ-4: [Can be unit tested because...]
+- REQ-004: [Can be unit tested because...]
 
 ### Not Worth Testing
 
@@ -246,14 +250,14 @@ Requirements testable in isolation:
 
 ## Known Issues
 
-Active bugs and defects for this feature. Remove rows when fixed and verified. If none: "No active bugs."
+Active and resolved bugs for this feature. When fixed, set Status to `Resolved` — keep the row so regression-test `@spec BUG-###` references still resolve (removing it orphans them). If none: "No active bugs."
 
 | ID | Description | Severity | Status | Links |
 |----|-------------|----------|--------|-------|
-| BUG-[feature]-01 | [Brief description of the bug] | High/Medium/Low | Open | REQ-##, UserStory-[feature]-##, `test-file.spec.ts:line` |
+| BUG-001 | [Brief description of the bug] | High/Medium/Low | Open | REQ-###, UserStory-###, `test-file.spec.ts:line` |
 
 > **Severity:** High = broken, no workaround. Medium = impaired, workaround exists. Low = minor, cosmetic.
-> **Links:** Include relevant REQ-##, UserStory-[feature]-##, and/or test file:line references.
+> **Links:** Include relevant REQ-###, UserStory-###, and/or test file:line references.
 
 ---
 

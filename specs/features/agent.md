@@ -6,9 +6,9 @@
 
 ## User Stories
 
-- UserStory-agent-01: As a developer, I can invoke the spec-driven-development agent for a bootstrapping session so that specs are generated for my entire codebase without cluttering my main conversation thread
-- UserStory-agent-02: As a developer, I can run a full spec health check via the agent so that all spec files are mechanically validated, sync violations auto-fixed, and draft fixes confirmed with me in one pass
-- UserStory-agent-03: As a developer, I can ask the agent to write a spec for a specific feature so that I get a complete, verified spec without manually reading template files myself
+- UserStory-001: As a developer, I can invoke the spec-driven-development agent for a bootstrapping session so that specs are generated for my entire codebase without cluttering my main conversation thread
+- UserStory-002: As a developer, I can run a full spec health check via the agent so that all spec files are mechanically validated, sync violations auto-fixed, and draft fixes confirmed with me in one pass
+- UserStory-003: As a developer, I can ask the agent to write a spec for a specific feature so that I get a complete, verified spec without manually reading template files myself
 
 ---
 
@@ -36,14 +36,14 @@
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | Agent definition must include a tool list covering all tools needed for autonomous spec work: Read, Edit, Write, Glob, Grep, Bash, AskUserQuestion, WebSearch, WebFetch | Must |
-| REQ-2 | Agent must check for existing specs (Glob: specs/**/*.md, app_spec/**/*.md) before generating new ones | Must |
-| REQ-3 | Agent must read SKILL.md for methodology details rather than duplicating them in the agent definition | Must |
-| REQ-4 | Agent definition must include a slim quick reference table (the 5 most common operations) with a pointer to SKILL.md's full Intent Detection table | Must |
-| REQ-5 | Agent must follow CODE-RULE.1 (Read before Write) — read any file before editing it | Must |
-| REQ-6 | Agent must use model: sonnet (not claude-3-haiku or older) for quality spec work | Must |
-| REQ-7 | Agent description must accurately distinguish it from the skill: "sustained, autonomous spec work" vs. inline proactive guidance | Should |
-| REQ-8 | Agent must present DRAFT-rule fixes (vague wording, empty intent cells, fewer than 3 error/edge cases) to the user for confirmation before applying them — never silently invent intent | Must |
+| REQ-001 | Agent definition must include a tool list covering all tools needed for autonomous spec work: Read, Edit, Write, Glob, Grep, Bash, AskUserQuestion, WebSearch, WebFetch | Must |
+| REQ-002 | Agent must check for existing specs (Glob: specs/**/*.md, app_spec/**/*.md) before generating new ones | Must |
+| REQ-003 | Agent must read SKILL.md for methodology details rather than duplicating them in the agent definition | Must |
+| REQ-004 | Agent definition must include a slim quick reference table (the 5 most common operations) with a pointer to SKILL.md's full Intent Detection table | Must |
+| REQ-005 | Agent must follow CODE-RULE.1 (Read before Write) — read any file before editing it | Must |
+| REQ-006 | Agent must use model: sonnet (not claude-3-haiku or older) for quality spec work | Must |
+| REQ-007 | Agent description must accurately distinguish it from the skill: "sustained, autonomous spec work" vs. inline proactive guidance | Should |
+| REQ-008 | Agent must present DRAFT-rule fixes (vague wording, empty intent cells, fewer than 3 error/edge cases) to the user for confirmation before applying them — never silently invent intent | Must |
 
 ---
 
@@ -113,7 +113,7 @@ User invokes /sdd command
 | Agent reads wrong spec directory | Project has app_spec/ but agent only checks specs/ | Agent creates duplicate specs/ directory | Agent should Glob both patterns before writing |
 | Context overflow on large codebase | Too many files to read in one agent session | Agent truncates; some features may be missed | Run bootstrap feature-by-feature, not all at once |
 | AskUserQuestion not used when request is vague | Agent assumes intent instead of asking | Wrong spec written for wrong feature | Agent definition instructs to clarify before writing |
-| DRAFT fix applied silently | Agent fills intent gaps (vague wording, empty cells, missing error/edge cases) without asking | Spec contains AI-invented requirements or error cases the user never approved | REQ-8 enforces draft-and-confirm; revert the edit and re-run the draft pass interactively |
+| DRAFT fix applied silently | Agent fills intent gaps (vague wording, empty cells, missing error/edge cases) without asking | Spec contains AI-invented requirements or error cases the user never approved | REQ-008 enforces draft-and-confirm; revert the edit and re-run the draft pass interactively |
 
 ---
 
@@ -186,9 +186,9 @@ skills: spec-driven-development
 
 ### Critical Paths
 
-1. UserStory-agent-01: Install agent → invoke /sdd bootstrap → verify agent reads code + creates overview + feature specs → covers REQ-1, REQ-2, REQ-5
-2. UserStory-agent-02: Run /sdd "check specs" → verify agent runs validate-specs.mjs → auto-fixes SYNC violations → presents DRAFT fixes for approval before editing → covers REQ-8, REQ-2
-3. UserStory-agent-03: Run /sdd "write spec for [feature]" → verify agent reads existing code before writing → uses templates → covers REQ-5, REQ-6
+1. UserStory-001: Install agent → invoke /sdd bootstrap → verify agent reads code + creates overview + feature specs → covers REQ-001, REQ-002, REQ-005
+2. UserStory-002: Run /sdd "check specs" → verify agent runs validate-specs.mjs → auto-fixes SYNC violations → presents DRAFT fixes for approval before editing → covers REQ-008, REQ-002
+3. UserStory-003: Run /sdd "write spec for [feature]" → verify agent reads existing code before writing → uses templates → covers REQ-005, REQ-006
 
 ### Not Worth Testing
 
@@ -218,4 +218,4 @@ No active bugs.
 | 2026-03-24 | Initial spec | Bootstrap from existing codebase |
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
-| 2026-06-11 | Replaced stray-file deletion REQ-8 with draft-and-confirm requirement; health check now starts with validate-specs.mjs; quick reference slimmed to 5 rows + SKILL.md pointer; command reference updated to sdd.md | Spec synced to methodology v2 |
+| 2026-06-11 | Replaced stray-file deletion REQ-008 with draft-and-confirm requirement; health check now starts with validate-specs.mjs; quick reference slimmed to 5 rows + SKILL.md pointer; command reference updated to sdd.md | Spec synced to methodology v2 |

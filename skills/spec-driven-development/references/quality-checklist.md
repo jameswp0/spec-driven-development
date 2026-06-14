@@ -13,13 +13,13 @@ Before finishing any spec work, verify the following items. These map to CODE-RU
 
 ## Feature Specs — User Stories
 
-- [ ] User stories have unique IDs (UserStory-[feature]-##)
+- [ ] User stories have unique IDs (UserStory-###, global; mint with `spec-fns.mjs next userstory`)
 - [ ] Format: "As a user, I can [action] so that [benefit]"
 - [ ] Out of scope documented — what Claude will not build for this feature
 
 ## Feature Specs — Requirements
 
-- [ ] Requirements have unique IDs (REQ-##, sequential within this feature spec)
+- [ ] Requirements have unique IDs (REQ-###, global; mint with `spec-fns.mjs next req`)
 - [ ] Each requirement has Priority (Must/Should/Could)
 - [ ] Requirements are testable (clear pass/fail)
 
@@ -52,10 +52,10 @@ Before finishing any spec work, verify the following items. These map to CODE-RU
 
 ## Feature Specs — Known Issues
 
-- [ ] Bugs have unique IDs (BUG-[feature]-##)
-- [ ] Each bug has Severity (High/Medium/Low) and Status (Open/Fixed)
-- [ ] Fixed bugs removed (with changelog entry)
-- [ ] Links column has relevant refs (REQ-##, UserStory-[feature]-##, test file:line)
+- [ ] Bugs have unique IDs (BUG-###, global; mint with `spec-fns.mjs next bug`)
+- [ ] Each bug has Severity (High/Medium/Low) and Status (Open/Resolved)
+- [ ] Fixed bugs set to Resolved — row kept so regression `@spec BUG-###` refs still resolve (with changelog entry)
+- [ ] Links column has relevant refs (REQ-###, UserStory-###, test file:line)
 
 ## Traceability
 

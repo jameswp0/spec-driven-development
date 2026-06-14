@@ -6,9 +6,10 @@
 
 ## User Stories
 
-- UserStory-workflows-01: As a developer, I can follow the bootstrap workflow to generate specs for an existing codebase so that I get a structured overview + feature specs without manually reading every template section instruction
-- UserStory-workflows-02: As a developer, I can follow the todo analysis workflow to prioritize my backlog so that I know what to work on next based on dependencies, severity, and YAGNI filtering
-- UserStory-workflows-03: As a developer, I can use the bootstrap workflow's check-for-existing-specs step so that running bootstrap on a partially-documented codebase fills gaps rather than overwriting existing work
+- UserStory-018: As a developer, I can follow the bootstrap workflow to generate specs for an existing codebase so that I get a structured overview + feature specs without manually reading every template section instruction
+- UserStory-019: As a developer, I can follow the todo analysis workflow to prioritize my backlog so that I know what to work on next based on dependencies, severity, and YAGNI filtering
+- UserStory-020: As a developer, I can use the bootstrap workflow's check-for-existing-specs step so that running bootstrap on a partially-documented codebase fills gaps rather than overwriting existing work
+- UserStory-021: As a developer, I can follow the migrate workflow to convert an existing project's per-feature IDs to global IDs so that `@spec` references resolve by identity and stop breaking on folds and renames
 
 ---
 
@@ -47,21 +48,35 @@ A workflow for analyzing and prioritizing todos across all feature specs:
 - Prioritize: bugs > security > blocking > quick wins
 - Return prioritized, actionable list
 
+### migrate.md
+
+A 6-step workflow for adopting global IDs on a project with per-feature/per-file IDs:
+
+1. Survey the cross-file reference ambiguity risk (do prose `REQ-N` mentions stay within each file's range?)
+2. Assign global numbers (UserStory/BUG by unique token; REQ per-file off one counter)
+3. Rewrite via `spec-fns.mjs sed`; add Status/Verify columns
+4. Resolve the judgment tail (multi-spec `@spec` lines, fold-rot danglers, ranges)
+5. Verify (`spec-fns.mjs health` clean; `validate-specs.mjs` 0 errors)
+6. Sync the project's CLAUDE.md/AGENTS.md bindings
+
+The mechanical bulk is `spec-fns.mjs`'s; the ambiguous tail is left to judgment — there is no fully-automatic migrator.
+
 ---
 
 ## Requirements
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | bootstrap.md must include a pre-check step that reads existing specs before generating new ones | Must |
-| REQ-2 | bootstrap.md must instruct the agent to think in user terms when identifying features (what can users do, not what files exist) | Must |
-| REQ-3 | bootstrap.md must produce a report at the end showing: specs created, features documented, user story count, requirement count, error case count | Must |
-| REQ-4 | bootstrap.md must reference the templates — agent reads templates before filling them, not from memory | Must |
-| REQ-5 | todos.md must apply YAGNI filtering — question todos that add complexity without clear user value | Must |
-| REQ-6 | todos.md must output a prioritized list with rationale, not just a ranked list | Must |
-| REQ-7 | Both workflows must be concise enough to read in under 2 minutes — complex detail belongs in templates or SKILL.md | Should |
-| REQ-8 | bootstrap.md must direct bootstrap output to `features/` only (it documents existing code); todos.md must include `specs/future/` work items as a backlog source when the directory exists | Should |
-| REQ-9 | bootstrap.md must include a workflow-binding step: create CLAUDE.md from `templates/CLAUDE-SDD.md` with placeholders filled from bootstrap findings, or merge the starter's workflow sections into an existing CLAUDE.md only with user confirmation | Must |
+| REQ-044 | bootstrap.md must include a pre-check step that reads existing specs before generating new ones | Must |
+| REQ-045 | bootstrap.md must instruct the agent to think in user terms when identifying features (what can users do, not what files exist) | Must |
+| REQ-046 | bootstrap.md must produce a report at the end showing: specs created, features documented, user story count, requirement count, error case count | Must |
+| REQ-047 | bootstrap.md must reference the templates — agent reads templates before filling them, not from memory | Must |
+| REQ-048 | todos.md must apply YAGNI filtering — question todos that add complexity without clear user value | Must |
+| REQ-049 | todos.md must output a prioritized list with rationale, not just a ranked list | Must |
+| REQ-050 | Each workflow must be concise enough to read in under 2 minutes — complex detail belongs in templates or SKILL.md | Should |
+| REQ-051 | bootstrap.md must direct bootstrap output to `features/` only (it documents existing code); todos.md must include `specs/future/` work items as a backlog source when the directory exists | Should |
+| REQ-052 | bootstrap.md must include a workflow-binding step: create CLAUDE.md from `templates/CLAUDE-SDD.md` with placeholders filled from bootstrap findings, or merge the starter's workflow sections into an existing CLAUDE.md only with user confirmation | Must |
+| REQ-053 | migrate.md must guide per-feature→global ID migration using the `spec-fns.mjs` primitives (next/loc/sed/health), and must leave the ambiguous tail — multi-spec `@spec` lines, fold-rot danglers, ranges — to human/agent judgment rather than auto-resolving | Must |
 
 ---
 
@@ -72,7 +87,8 @@ A workflow for analyzing and prioritizing todos across all feature specs:
 ```text
 skills/spec-driven-development/workflows/
 ├── bootstrap.md    ← read by agent for bootstrapping operations
-└── todos.md        ← read by agent for todo analysis
+├── todos.md        ← read by agent for todo analysis
+└── migrate.md      ← read by agent for global-ID migration
 
 Each workflow references:
 ├── templates/overview.template.md  (bootstrap.md → Step 3)
@@ -125,10 +141,10 @@ Developer: /sdd what should I work on?
 
 | Error | Cause | User Sees | Recovery |
 |-------|-------|-----------|----------|
-| Bootstrap creates duplicate specs | Agent doesn't check existing specs before writing | Duplicate specs/overview.md and app_spec/overview.md | REQ-1 enforces pre-check; agent must read existing before writing |
-| Features identified from files, not users | Agent lists "auth.go, chat.go, tasks.go" as features | Technical features, not user capabilities | REQ-2 enforces user-terms framing; agent asks "what can users do?" |
-| Bootstrap report missing counts | Agent skips the final report step | No summary of what was created | REQ-3 enforces report; agent must produce table at end |
-| Existing CLAUDE.md overwritten | Binding step replaces instead of merging | User loses their project instructions | REQ-9: merge sections and confirm with user before editing an existing CLAUDE.md |
+| Bootstrap creates duplicate specs | Agent doesn't check existing specs before writing | Duplicate specs/overview.md and app_spec/overview.md | REQ-044 enforces pre-check; agent must read existing before writing |
+| Features identified from files, not users | Agent lists "auth.go, chat.go, tasks.go" as features | Technical features, not user capabilities | REQ-045 enforces user-terms framing; agent asks "what can users do?" |
+| Bootstrap report missing counts | Agent skips the final report step | No summary of what was created | REQ-046 enforces report; agent must produce table at end |
+| Existing CLAUDE.md overwritten | Binding step replaces instead of merging | User loses their project instructions | REQ-052: merge sections and confirm with user before editing an existing CLAUDE.md |
 | Todo analysis with no todos | All feature specs have empty Future Considerations | "No todos found" without actionable guidance | Agent should note what sections were checked and confirm specs exist |
 | YAGNI filter removes valid todo | Agent over-filters and removes important work | Developer misses needed improvement | Agent explains rationale; developer can override |
 | Bootstrap runs on project with no code | Nothing to explore | Agent asks for project description | AskUserQuestion triggers; spec written from conversation |
@@ -154,7 +170,8 @@ Developer: /sdd what should I work on?
 ```text
 skills/spec-driven-development/workflows/
 ├── bootstrap.md        [references: templates/overview.template.md, templates/feature.template.md]
-└── todos.md            [standalone; reads specs/**/*.md at runtime]
+├── todos.md            [standalone; reads specs/**/*.md at runtime]
+└── migrate.md          [references: scripts/spec-fns.mjs; per-feature→global ID migration]
 ```
 
 ### bootstrap.md Structure
@@ -211,9 +228,9 @@ skills/spec-driven-development/workflows/
 
 ### Critical Paths
 
-1. UserStory-workflows-01: Run /sdd bootstrap → verify Step 1 checks existing specs → Steps 3-5 create valid specs using templates → Step 6 binds CLAUDE.md → Step 7 produces report → covers REQ-1, REQ-2, REQ-3, REQ-4, REQ-9
-2. UserStory-workflows-02: Run /sdd "what should I work on?" → verify all future considerations sections read → YAGNI filter applied → prioritized list returned → covers REQ-5, REQ-6
-3. UserStory-workflows-03: Run /sdd bootstrap with partial specs → verify only missing specs created → existing specs not overwritten → covers REQ-1
+1. UserStory-018: Run /sdd bootstrap → verify Step 1 checks existing specs → Steps 3-5 create valid specs using templates → Step 6 binds CLAUDE.md → Step 7 produces report → covers REQ-044, REQ-045, REQ-046, REQ-047, REQ-052
+2. UserStory-019: Run /sdd "what should I work on?" → verify all future considerations sections read → YAGNI filter applied → prioritized list returned → covers REQ-048, REQ-049
+3. UserStory-020: Run /sdd bootstrap with partial specs → verify only missing specs created → existing specs not overwritten → covers REQ-044
 
 ### Not Worth Testing
 
@@ -244,5 +261,6 @@ No active bugs.
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
 | 2026-06-11 | Documented two-tier template usage in bootstrap Step 4 | Spec synced to methodology v2 bootstrap.md |
-| 2026-06-11 | Added REQ-8: bootstrap outputs to features/ only; todos workflow scans specs/future/ as a backlog source | Merged spec-lifecycle work item (lifecycle's first execution) |
-| 2026-06-11 | Added REQ-9 and Step 6: bootstrap binds the workflow via CLAUDE-SDD starter (create or merge with confirmation); report is now Step 7 | Bootstrapped projects got specs but no CLAUDE.md binding — next session wasn't spec-driven |
+| 2026-06-11 | Added REQ-051: bootstrap outputs to features/ only; todos workflow scans specs/future/ as a backlog source | Merged spec-lifecycle work item (lifecycle's first execution) |
+| 2026-06-11 | Added REQ-052 and Step 6: bootstrap binds the workflow via CLAUDE-SDD starter (create or merge with confirmation); report is now Step 7 | Bootstrapped projects got specs but no CLAUDE.md binding — next session wasn't spec-driven |
+| 2026-06-13 | Added migrate.md workflow (UserStory-021, REQ-053): per-feature→global ID migration via spec-fns.mjs, ambiguous tail left to judgment; REQ-050 generalized to "each workflow" | v3 global-ID model needs a first-class, repeatable migration path |

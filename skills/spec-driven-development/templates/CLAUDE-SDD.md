@@ -32,9 +32,9 @@ Spec → Implement → Test → Sync
 - Overview: `specs/overview.md`
 - Features (present tense — always true of the code): `specs/features/[feature].md`
 - Unbuilt work (intent — never checked against code): `specs/future/[work-item].md`
-- IDs: `UserStory-[feature]-##`, `REQ-##` (sequential per spec), `BUG-[feature]-##`
+- IDs: `UserStory-###`, `REQ-###`, `BUG-###` — global per type, minted with `spec-fns.mjs next <type>` (never per-feature, never hand-assigned)
 
-`specs/features/` divergence from code is always a bug. `ls specs/future/` is the open-work list. Tests reference `features/` paths only.
+`specs/features/` divergence from code is always a bug. `ls specs/future/` is the open-work list. Tests reference intent **by ID** (resolved by identity; a ref to a `future/` id is `pending_merge` until it ships).
 
 **Granularity:** one feature per file in `features/`; one mergeable work item per file in `future/` (sized to implement and merge in one cycle — split anything bigger). Stages/milestones are metadata (the work item's Milestone field and the overview's Pipeline table), never the file unit.
 
@@ -48,21 +48,24 @@ Spec → Implement → Test → Sync
 | Starting a planned work item | Tighten its `specs/future/` spec to full rigor (stories, REQs, ≥3 errors/edges), confirm open questions, then implement |
 | Just finished implementing | Run tests; merge the future spec into `specs/features/` (Merge Checklist), delete it; changelog entry |
 | Test failing | Find the `@spec` reference; diagnose spec vs code vs test — fix the code unless intent changed |
-| Bug found | Add to the feature spec's Known Issues (`BUG-[feature]-##`, severity, links) |
-| Bug fixed | Remove the Known Issues row; add changelog entry |
+| Bug found | Add to the feature spec's Known Issues (`BUG-###`, severity, Status `Open`, links) |
+| Bug fixed | Set the Known Issues row's Status to `Resolved` (keep the row so regression tests resolve); add changelog entry |
 | "What should I work on?" | Check `specs/future/` (the pipeline) first, then Future Considerations across specs; prioritize bugs > security > blockers > quick wins |
 | Periodically / before release | Run the spec health check (`/sdd check specs`) |
 
 ## Tests Trace to Specs
 
-- E2E tests carry an `@spec` header pointing to a real spec file and UserStory ID (format: skill's `references/e2e-test-format.md`)
+- E2E tests carry an `@spec` header referencing spec IDs (UserStory/REQ), resolved by identity — the path is advisory (format: skill's `references/e2e-test-format.md`)
 - Unit tests cover REQ-* requirements; test names state specific behavior
 - No mock-validating tests, no happy-path-only suites (skill's `references/test-anti-patterns.md`)
 
 ## Quality Gates (before committing spec changes)
 
 ```bash
-# Mechanical validation (IDs, sections, tables, links, @spec refs)
+# Identity graph: single-home, dangling refs, coverage (the worklist)
+node ~/.claude/skills/spec-driven-development/scripts/spec-fns.mjs health
+
+# Structural validation (sections, tables, Features-table links)
 node ~/.claude/skills/spec-driven-development/scripts/validate-specs.mjs specs
 
 # Formatting
@@ -70,7 +73,7 @@ npx markdownlint-cli "specs/**/*.md" --config specs/.markdownlint.jsonc
 npx prettier --write "specs/**/*.md"
 ```
 
-The validator must exit 0 (no ERRORs). WARNs feed the health check's draft pass.
+`spec-fns.mjs health` detects identity problems (you resolve them); `validate-specs.mjs` must exit 0 (no ERRORs). WARNs feed the health check's draft pass.
 
 ## Project Specifics
 

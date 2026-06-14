@@ -26,11 +26,11 @@
 
 ## User Stories
 
-New stories only — reference existing stories in prose, never re-list them (the validator's duplicate-ID index spans `features/` and `future/`).
+New stories only — reference existing stories in prose, never re-list them (single-home spans `features/` and `future/`).
 
-- UserStory-[feature]-##: As a [user type], I can [action] so that [benefit]
+- UserStory-###: As a [user type], I can [action] so that [benefit]
 
-> Continue numbering from the base spec's highest story ID.
+> Mint with `scripts/spec-fns.mjs next userstory`. The ID is global and **never changes** — including on merge.
 
 ---
 
@@ -44,12 +44,12 @@ What this work item explicitly does NOT include.
 
 ## Requirements
 
-New or modified requirements. IDs are scoped to this work item and renumbered into the base sequence on merge.
+New or modified requirements. IDs are global (mint with `scripts/spec-fns.mjs next req`) and **never change on merge** — the row moves into the base spec keeping its ID.
 
-| ID | Requirement | Priority | Action |
-|----|-------------|----------|--------|
-| REQ-1 | [Testable statement] | Must | New |
-| REQ-2 | [Testable statement] | Must | Modifies base REQ-# |
+| ID | Requirement | Priority | Verify | Action |
+|----|-------------|----------|--------|--------|
+| REQ-### | [Testable statement] | Must | unit | New |
+| REQ-### | [Testable statement] | Must | e2e | Modifies REQ-### (existing) |
 
 ---
 
@@ -57,11 +57,11 @@ New or modified requirements. IDs are scoped to this work item and renumbered in
 
 For the new/changed behavior only.
 
-| Error | Cause | User Sees | Recovery |
-|-------|-------|-----------|----------|
-| [Error] | [Cause] | [What user sees] | [Recovery] |
-| [Error] | [Cause] | [What user sees] | [Recovery] |
-| [Error] | [Cause] | [What user sees] | [Recovery] |
+| ID | Error | Cause | User Sees | Recovery |
+|----|-------|-------|-----------|----------|
+| ERR-### | [Error] | [Cause] | [What user sees] | [Recovery] |
+| ERR-### | [Error] | [Cause] | [What user sees] | [Recovery] |
+| ERR-### | [Error] | [Cause] | [What user sees] | [Recovery] |
 
 ---
 
@@ -69,17 +69,17 @@ For the new/changed behavior only.
 
 For the new/changed behavior only.
 
-| Scenario | Expected Behavior |
-|----------|-------------------|
-| [Scenario] | [Behavior] |
-| [Scenario] | [Behavior] |
-| [Scenario] | [Behavior] |
+| ID | Scenario | Expected Behavior |
+|----|----------|-------------------|
+| EDGE-### | [Scenario] | [Behavior] |
+| EDGE-### | [Scenario] | [Behavior] |
+| EDGE-### | [Scenario] | [Behavior] |
 
 ---
 
 ## Key Decisions
 
-### Decision 1: [Choice Made]
+### DEC-###: [Choice Made]
 
 **Context:** What problem were we solving?
 
@@ -91,8 +91,8 @@ For the new/changed behavior only.
 
 ## Merge Checklist (run when shipping)
 
-- [ ] All new stories have passing `@spec` tests referencing the BASE spec path (never this file)
-- [ ] Stories/REQs/errors/edges merged into base spec(s); REQ IDs renumbered into the base sequence
+- [ ] All new stories have passing `@spec` tests (referenced by ID; the path is advisory, and `pending_merge` warnings clear on merge)
+- [ ] Stories/REQs/errors/edges moved into base spec(s) — IDs are global and unchanged (no renumbering)
 - [ ] Changelog entry added to base spec(s)
 - [ ] Overview Pipeline (and Features, if applicable) tables updated
 - [ ] This file deleted

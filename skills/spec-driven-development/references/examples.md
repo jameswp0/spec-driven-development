@@ -8,8 +8,8 @@ Good and bad examples for reference.
 
 **Good:**
 
-- UserStory-kanban-01: As a user, I can drag a task to a different column to change its status
-- UserStory-kanban-02: As a user, I can see how many tasks are in each column
+- UserStory-001: As a user, I can drag a task to a different column to change its status
+- UserStory-002: As a user, I can see how many tasks are in each column
 
 ## Requirements
 
@@ -17,11 +17,11 @@ Good and bad examples for reference.
 
 **Good:**
 
-| ID | Requirement | Priority |
-|----|-------------|----------|
-| REQ-1 | Dragging task to new column updates status immediately | Must |
-| REQ-2 | Failed status update reverts card to original column | Must |
-| REQ-3 | Column headers show task count | Should |
+| ID | Requirement | Priority | Verify |
+|----|-------------|----------|--------|
+| REQ-001 | Dragging task to new column updates status immediately | Must | e2e |
+| REQ-002 | Failed status update reverts card to original column | Must | e2e |
+| REQ-003 | Column headers show task count | Should | unit |
 
 ## Error Cases
 
@@ -29,10 +29,10 @@ Good and bad examples for reference.
 
 **Good:**
 
-| Error | Cause | User Sees | Recovery |
-|-------|-------|-----------|----------|
-| Network failure | No connection | Toast: "Failed to update" | Card reverts, retry manually |
-| Conflict | Task deleted elsewhere | Toast: "Task not found" | Card disappears |
+| ID | Error | Cause | User Sees | Recovery |
+|----|-------|-------|-----------|----------|
+| ERR-001 | Network failure | No connection | Toast: "Failed to update" | Card reverts, retry manually |
+| ERR-002 | Conflict | Task deleted elsewhere | Toast: "Task not found" | Card disappears |
 
 ## Edge Cases
 
@@ -40,23 +40,23 @@ Good and bad examples for reference.
 
 **Good:**
 
-| Scenario | Expected Behavior |
-|----------|-------------------|
-| Empty task title | Save button disabled, no API call made |
-| Concurrent edit by two users | Last write wins, no conflict UI shown |
-| Network drops mid-drag | Card returns to original column, toast: "Move failed" |
-| Very long title (>200 chars) | Truncated in column header, full text in detail view |
+| ID | Scenario | Expected Behavior |
+|----|----------|-------------------|
+| EDGE-001 | Empty task title | Save button disabled, no API call made |
+| EDGE-002 | Concurrent edit by two users | Last write wins, no conflict UI shown |
+| EDGE-003 | Network drops mid-drag | Card returns to original column, toast: "Move failed" |
+| EDGE-004 | Very long title (>200 chars) | Truncated in column header, full text in detail view |
 
 ## Known Issues
 
-**Bad:** Missing feature prefix, vague description, no links.
+**Bad:** Vague description, no links, or deleting the row when fixed (orphans regression tests).
 
 **Good:**
 
 | ID | Description | Severity | Status | Links |
 |----|-------------|----------|--------|-------|
-| BUG-kanban-01 | Drag-and-drop fails on iOS Safari 16 | High | Open | REQ-3, UserStory-kanban-02 |
-| BUG-kanban-02 | Column count flickers when tasks reorder rapidly | Low | Open | REQ-2 |
+| BUG-001 | Drag-and-drop fails on iOS Safari 16 | High | Open | REQ-003, UserStory-002 |
+| BUG-002 | Column count flickered when tasks reorder rapidly | Low | Resolved | REQ-002 |
 
 ## E2E @spec Reference
 
@@ -64,9 +64,7 @@ Good and bad examples for reference.
 
 ```typescript
 /**
- * @spec app_spec/features/kanban.md:UserStory-kanban-01
- * USER STORY: As a user, I can drag a task to a different column to change its status
- * SPEC: kanban.md - REQ-1, REQ-2
+ * @spec UserStory-001, REQ-001, REQ-002
  */
 test("drag task from Todo to In Progress updates status", async ({ page }) => { ... });
 ```

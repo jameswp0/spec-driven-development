@@ -8,11 +8,10 @@
  * Layout validated: <spec-dir>/overview.md plus <spec-dir>/features/*.md
  *
  * Rules:
- *   1. ERROR  userstory-format   `- UserStory-...` lines must match `UserStory-[a-z0-9-]+-\d\d:`
- *             userstory-mixed    WARN if one file mixes feature codes
+ *   1. ERROR  userstory-format   `- UserStory-...` lines must match `UserStory-\d+:` (global ids)
  *   2. ERROR  userstory-dup      duplicate UserStory IDs within or across files
- *   3. ERROR  req-format/req-dup REQ IDs in Requirements tables must match REQ-\d+, no duplicates
- *             WARN  req-gap      non-sequential REQ numbering (gaps)
+ *   3. ERROR  req-format/req-dup REQ IDs in Requirements tables must match REQ-\d+, no in-file dups
+ *             (no gap check — global ids are sequential corpus-wide; single-home is spec-fns.mjs)
  *   4. WARN   bug-format         Known Issues IDs not matching BUG-[a-z0-9-]+-\d\d
  *   5. ERROR  missing-section    required feature sections: User Stories, Out of Scope,
  *                                Requirements, Error Cases, Edge Cases, Changelog
@@ -43,7 +42,7 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 
-const USERSTORY_ID = /^UserStory-([a-z0-9-]+)-\d\d$/;
+const USERSTORY_ID = /^UserStory-\d+$/;
 const REQUIRED_SECTIONS = [
   "## User Stories",
   "## Out of Scope",
@@ -134,19 +133,15 @@ function checkFeatureSpec(doc, storyIndex, { future = false } = {}) {
     }
   }
 
-  // Rules 1 + 2: UserStory ID format, mixed feature codes, duplicates
-  const codes = new Set();
+  // Rules 1 + 2: UserStory ID format + cross-file duplicates (single-home)
   for (let i = 0; i < doc.lines.length; i++) {
     if (doc.inFence[i]) continue;
     const m = doc.lines[i].match(/^\s*- (UserStory-[^\s:]*)(:?)/);
     if (!m) continue;
     const [, id, colon] = m;
-    const idMatch = id.match(USERSTORY_ID);
-    if (!idMatch || colon !== ":") {
+    if (!USERSTORY_ID.test(id) || colon !== ":") {
       add("ERROR", doc.file, i + 1, "userstory-format",
-        `"${id}" does not match UserStory-[a-z0-9-]+-NN: format`);
-    } else {
-      codes.add(idMatch[1]);
+        `"${id}" does not match UserStory-<number>: format`);
     }
     const seen = storyIndex.get(id);
     if (seen) {
@@ -155,10 +150,6 @@ function checkFeatureSpec(doc, storyIndex, { future = false } = {}) {
     } else {
       storyIndex.set(id, { file: relative(process.cwd(), doc.file), line: i + 1 });
     }
-  }
-  if (codes.size > 1) {
-    add("WARN", doc.file, null, "userstory-mixed",
-      `file mixes feature codes: ${[...codes].sort().join(", ")}`);
   }
 
   // Rule 3: REQ IDs
@@ -182,13 +173,9 @@ function checkFeatureSpec(doc, storyIndex, { future = false } = {}) {
         numbers.push(Number(m[1]));
       }
     }
-    const sorted = [...new Set(numbers)].sort((a, b) => a - b);
-    for (let i = 1; i < sorted.length; i++) {
-      if (sorted[i] !== sorted[i - 1] + 1) {
-        add("WARN", doc.file, null, "req-gap",
-          `non-sequential REQ numbering: gap between REQ-${sorted[i - 1]} and REQ-${sorted[i]}`);
-      }
-    }
+    // No gap check: IDs are global and sequential across the whole spec set,
+    // so per-file gaps are expected. Cross-file single-home, resolve-by-id, and
+    // coverage are handled by scripts/spec-fns.mjs (health), not this validator.
   }
 
   // Rule 4: BUG IDs in Known Issues tables

@@ -6,10 +6,10 @@
 
 ## User Stories
 
-- UserStory-templates-01: As a developer, I can copy the overview template to create a project-level spec so that I don't miss any of the required sections (architecture, tech stack, data flow, cross-cutting concerns)
-- UserStory-templates-02: As a developer, I can copy the feature template to create a feature spec so that I fill the required core sections and add optional sections only when their *Include when* test passes
-- UserStory-templates-03: As a developer, I can read the feature template's Implementation section so that I know to document a file map (path + purpose) and entry points — and to leave signatures, props, types, and schemas in the code
-- UserStory-templates-04: As a developer, I can copy the CLAUDE-SDD.md starter into a new project as CLAUDE.md so that spec-driven development is bound into every Claude session's workflow from day one
+- UserStory-011: As a developer, I can copy the overview template to create a project-level spec so that I don't miss any of the required sections (architecture, tech stack, data flow, cross-cutting concerns)
+- UserStory-012: As a developer, I can copy the feature template to create a feature spec so that I fill the required core sections and add optional sections only when their *Include when* test passes
+- UserStory-013: As a developer, I can read the feature template's Implementation section so that I know to document a file map (path + purpose) and entry points — and to leave signatures, props, types, and schemas in the code
+- UserStory-014: As a developer, I can copy the CLAUDE-SDD.md starter into a new project as CLAUDE.md so that spec-driven development is bound into every Claude session's workflow from day one
 
 ---
 
@@ -37,15 +37,15 @@
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | overview.template.md must include all required overview sections: Purpose, User Stories, System Architecture, Tech Stack, Data Flow, Cross-Cutting Concerns, Features table, Development, Key Decisions, Changelog — plus an optional Pipeline section (*Include when*: project uses the `specs/future/` lifecycle) listing work items with links | Must |
-| REQ-2 | feature.template.md must declare the core sections required in every spec: User Stories (with ID format), Out of Scope, What It Does, Requirements (with ID and Priority columns), Error Cases (with 4 columns), Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog | Must |
-| REQ-3 | Each optional section (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) must carry an explicit *Include when* test, and the Implementation section must be a file map (Path + Purpose) plus Entry Points — no component/hook/handler/schema tables | Must |
-| REQ-4 | Both templates must use placeholder text (e.g., [Feature Name], [field1]) that makes the structure clear without implying real content | Must |
-| REQ-5 | The feature template must include the UserStory ID format reminder (`UserStory-[feature]-##`) and the acceptance criteria note about tightening requirements | Must |
-| REQ-6 | The overview template architecture section must include an ASCII diagram with component boxes and arrows | Should |
-| REQ-7 | The feature template's optional States & Transitions section must include State Machine and State Descriptions subsections | Should |
-| REQ-8 | CLAUDE-SDD.md must state the non-negotiable workflow rules (no feature work without a spec, spec is truth in disputes, sync after implementing, intent edits need confirmation, trivial-change exemption), the granularity rule (one feature per `features/` file; one mergeable work item per `future/` file; stages are metadata), an intent routing table covering: existing codebase without specs (bootstrap workflow), new project from a roadmap (overview + Pipeline + granular work items), new feature requested, starting a planned work item (tighten to full rigor first), finished implementing (merge-and-delete), and "what to work on" (pipeline first), plus the validator + markdownlint quality-gate commands | Must |
-| REQ-9 | future.template.md must exist for change-type work items with: Target, Why, new User Stories (existing ones referenced in prose), Out of Scope, new/modified Requirements (with Action column), Error Cases, Edge Cases, Key Decisions, Merge Checklist, Changelog — plus the granularity note (one-cycle sizing; thin-then-tighten for distant items) | Must |
+| REQ-023 | overview.template.md must include all required overview sections: Purpose, User Stories, System Architecture, Tech Stack, Data Flow, Cross-Cutting Concerns, Features table, Development, Key Decisions, Changelog — plus an optional Pipeline section (*Include when*: project uses the `specs/future/` lifecycle) listing work items with links | Must |
+| REQ-024 | feature.template.md must declare the core sections required in every spec: User Stories (with ID format), Out of Scope, What It Does, Requirements (with ID and Priority columns), Error Cases (with 4 columns), Edge Cases, Key Decisions, Known Issues, Future Considerations, Changelog | Must |
+| REQ-025 | Each optional section (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) must carry an explicit *Include when* test, and the Implementation section must be a file map (Path + Purpose) plus Entry Points — no component/hook/handler/schema tables | Must |
+| REQ-026 | Both templates must use placeholder text (e.g., [Feature Name], [field1]) that makes the structure clear without implying real content | Must |
+| REQ-027 | The feature template must include the UserStory ID format reminder (`UserStory-[feature]-##`) and the acceptance criteria note about tightening requirements | Must |
+| REQ-028 | The overview template architecture section must include an ASCII diagram with component boxes and arrows | Should |
+| REQ-029 | The feature template's optional States & Transitions section must include State Machine and State Descriptions subsections | Should |
+| REQ-030 | CLAUDE-SDD.md must state the non-negotiable workflow rules (no feature work without a spec, spec is truth in disputes, sync after implementing, intent edits need confirmation, trivial-change exemption), the granularity rule (one feature per `features/` file; one mergeable work item per `future/` file; stages are metadata), an intent routing table covering: existing codebase without specs (bootstrap workflow), new project from a roadmap (overview + Pipeline + granular work items), new feature requested, starting a planned work item (tighten to full rigor first), finished implementing (merge-and-delete), and "what to work on" (pipeline first), plus the validator + markdownlint quality-gate commands | Must |
+| REQ-031 | future.template.md must exist for change-type work items with: Target, Why, new User Stories (existing ones referenced in prose), Out of Scope, new/modified Requirements (with Action column), Error Cases, Edge Cases, Key Decisions, Merge Checklist, Changelog — plus the granularity note (one-cycle sizing; thin-then-tighten for distant items) | Must |
 
 ---
 
@@ -239,9 +239,9 @@ skills/spec-driven-development/templates/
 
 ### Critical Paths
 
-1. UserStory-templates-01: Create overview spec using template → verify all required sections present → covers REQ-1, REQ-6
-2. UserStory-templates-02: Create feature spec using template → verify core sections filled and failing optional sections deleted → covers REQ-2, REQ-3, REQ-5
-3. UserStory-templates-03: Read implementation section → verify file map + entry points format, no signature/schema tables → covers REQ-3
+1. UserStory-011: Create overview spec using template → verify all required sections present → covers REQ-023, REQ-028
+2. UserStory-012: Create feature spec using template → verify core sections filled and failing optional sections deleted → covers REQ-024, REQ-025, REQ-027
+3. UserStory-013: Read implementation section → verify file map + entry points format, no signature/schema tables → covers REQ-025
 
 ### Not Worth Testing
 
@@ -271,7 +271,7 @@ No active bugs.
 | 2026-03-25 | Clarified automated tests not applicable (methodology-only repo) | Prevents spec agent from generating tests for this repo |
 | 2026-03-25 | Added language tags to fenced code blocks | MD040 lint compliance |
 | 2026-06-11 | Documented two-tier template (core/optional with Include-when tests), file-map-only Implementation section, new Key Decisions; removed minimal-variant todo (delivered by two-tier design) | Spec synced to methodology v2 template |
-| 2026-06-11 | Added CLAUDE-SDD.md starter (UserStory-templates-04, REQ-8) | New CLAUDE.md starter binds SDD workflow into new projects |
-| 2026-06-11 | Added future.template.md (REQ-9), overview Pipeline section (REQ-1), CLAUDE-SDD lifecycle routing (REQ-8), work-item-scoped naming edge case | Merged spec-lifecycle work item (lifecycle's first execution) |
-| 2026-06-11 | CLAUDE-SDD gained granularity rule and roadmap/work-item-start/pipeline routing rows (REQ-8); future template gained granularity note (REQ-9) | Playbook gaps: setup-from-roadmap and one-cycle sizing existed only in conversation, not in shipped guidance |
-| 2026-06-11 | CLAUDE-SDD routing gained "existing codebase, no specs → bootstrap" row (REQ-8) | Bootstrap and the starter now reference each other |
+| 2026-06-11 | Added CLAUDE-SDD.md starter (UserStory-014, REQ-030) | New CLAUDE.md starter binds SDD workflow into new projects |
+| 2026-06-11 | Added future.template.md (REQ-031), overview Pipeline section (REQ-023), CLAUDE-SDD lifecycle routing (REQ-030), work-item-scoped naming edge case | Merged spec-lifecycle work item (lifecycle's first execution) |
+| 2026-06-11 | CLAUDE-SDD gained granularity rule and roadmap/work-item-start/pipeline routing rows (REQ-030); future template gained granularity note (REQ-031) | Playbook gaps: setup-from-roadmap and one-cycle sizing existed only in conversation, not in shipped guidance |
+| 2026-06-11 | CLAUDE-SDD routing gained "existing codebase, no specs → bootstrap" row (REQ-030) | Bootstrap and the starter now reference each other |

@@ -17,7 +17,7 @@ You are an expert in spec-driven development. Your methodology — including the
 2. Clarify intent if not obvious from context
 3. Follow the methodology in the spec-driven-development skill
 
-**Hard rules:** Read before Write (CODE-RULE.1). DRAFT-rule fixes (vague wording, empty intent cells, <3 error/edge cases) are proposed to the user before being applied — never silently invent intent.
+**Hard rules:** Read before Write (CODE-RULE.1). DRAFT-rule fixes (vague wording, empty intent cells, <3 error/edge cases) are proposed to the user before being applied — never silently invent intent. Mint IDs with `scripts/spec-fns.mjs next <type>` — never hand-assign or scan-and-guess. `spec-fns.mjs health` detects; you resolve each finding.
 
 ---
 
@@ -28,7 +28,8 @@ The full intent table lives in the skill (SKILL.md → Intent Detection). Most c
 | User Says | Action |
 |-----------|--------|
 | "add feature", "build X" | Write spec first using template, then implement |
-| "check specs", "health" | Run `scripts/validate-specs.mjs`, then sync + draft passes per SKILL.md |
+| "check specs", "health" | Run `scripts/spec-fns.mjs health`, resolve each finding; then sync + draft passes per SKILL.md |
 | "add tests" / "check tests" | Generate/validate tests against TEST-RULE.1–9 |
 | "bootstrap" | Follow `workflows/bootstrap.md` |
+| "migrate specs" / adopt global IDs | Follow `workflows/migrate.md` |
 | "what to work on?" | Follow `workflows/todos.md` |

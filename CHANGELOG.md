@@ -1,5 +1,33 @@
 # Changelog
 
+## 3.0.0 — unreleased (in progress)
+
+Identity model: global IDs + a stateless primitives layer. Breaking.
+
+### Added
+
+- **`scripts/spec-fns.mjs`** — four zero-dependency, **stateless** primitives the LLM composes (specs+code are the only source of truth, scanned live; no registry): `next <type>` (mint the next global ID), `loc <id>` (every def/ref/link location), `health` (worklist: `multi_home`, `dangling`, `range`, `pending_merge`, `uncovered`, plus a manual-verify count), `sed <old=new>` (exact bulk-rewrite commands). Mechanical work is the script's; judgment stays with the model. Encodes the locked decisions: `@spec` ranges are flagged (`range`), `future/` references are `pending_merge` (warn-until-merge, not dangling), and `verify: manual/none` items are reported as a count, excluded from `uncovered`.
+- SKILL.md **Spec Primitives** section + the two invariants (single home; resolve by ID). Health check rewritten to run `health` and resolve findings.
+- Feature template: `Verify` column on Requirements (`unit`/`e2e`/`manual`/`none`); ID columns on Error/Edge cases (`ERR-###`/`EDGE-###`); `DEC-###` on decisions.
+
+### Changed
+
+- **IDs are global per type** (`REQ-###`, `UserStory-###`, `BUG-###`, `ERR-###`, `EDGE-###`, `DEC-###`) — unique across the whole spec set, never per-file. Folds/renames never change an ID or break a reference (references resolve by ID; the `@spec` path is advisory).
+- **Bugs are not deleted on fix** — set the Known Issues row's Status to `Resolved` so regression-test `@spec BUG-###` references keep resolving.
+- Validator: dropped the per-file numbering-gap WARN (gaps are expected under global IDs); cross-file identity checks delegated to `spec-fns.mjs`.
+
+### Decisions (locked)
+
+- Sequential IDs (collisions repaired by `sed`), not opaque. `@spec` ranges dropped. TDD: tests may reference `future/` IDs, flagged warn-until-merge. `verify: manual/none` reported as a visible count, not silently green.
+
+### Migrated
+
+- This repo's own `specs/` are on global IDs (20 UserStory + 52 REQ); `validate-specs.mjs` UserStory parsing updated to `UserStory-<number>` and its feature-code/gap WARNs removed. `spec-fns health` and `validate-specs` both green.
+
+### Pending
+
+- Migrate st-clone (the real project) to global IDs with `spec-fns.mjs` + `sed`.
+
 ## 2.1.0 — 2026-06-11
 
 Spec lifecycle: split specs by tense (opt-in convention).

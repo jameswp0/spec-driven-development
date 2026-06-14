@@ -1,38 +1,37 @@
 # E2E Test Format
 
-E2E tests must trace back to spec user stories.
+E2E tests trace back to spec user stories via an `@spec` tag.
 
-## File-Level Header
+## The `@spec` tag
+
+A test references intent **by ID**. The ID is identity — it resolves to exactly one home. A file path, if included, is advisory: the tooling keeps it honest and never depends on it.
 
 ```typescript
 /**
  * @journey [user flow: action → result → outcome]
  * @risk [what breaks if this fails]
  * @why-e2e [what integration is proven]
- * @spec [spec-dir]/features/[feature].md:UserStory-[feature]-##,UserStory-[feature]-##
- */
-```
-
-## Individual Test Header
-
-```typescript
-/**
- * @spec [spec-dir]/features/[feature].md:UserStory-[feature]-##
- * USER STORY: [Full user story text copied from spec]
- * SPEC: [filename] - REQ-1, REQ-2, ...
- *
- * [Why this integration matters]
+ * @spec UserStory-###, REQ-###, REQ-###
  */
 test("description", async ({ page }) => { ... });
 ```
 
-> **`[spec-dir]`** is your project's spec directory: `specs/` or `app_spec/`. Use the actual path.
->
-> **Required field:** `@spec` is validated by the Test Health Check (TEST-RULE.5). `@journey`, `@risk`, and `@why-e2e` are recommended context fields — include them when the reason for the E2E test isn't obvious from the test description alone.
+- IDs are **global** (`UserStory-###`, `REQ-###`, and where used `ERR-###` / `EDGE-###`). List as many as the test covers, comma-separated; continuation lines inside the comment block are read.
+- A path may be added for human context (`@spec specs/features/chat.md UserStory-007`) but is optional and advisory — resolution is by ID.
+- **No ranges.** `REQ-001..006` is meaningless under global IDs (the numbers are unrelated). List the exact IDs.
+- **No `SPEC:` / copied-text mirror.** Which REQs a test covers, and the story text, are derived from the IDs — don't hand-maintain a second copy in the comment.
 
-## Key Rules
+## Resolution & validation
 
-- `@spec` references must point to valid spec files and UserStory IDs
-- USER STORY text must match the spec exactly
-- REQ-* IDs identify which requirements the test covers
-- Every test must answer: "What breaks if this fails?"
+`scripts/spec-fns.mjs health` resolves every `@spec` ID against the spec set:
+
+- defined nowhere → `dangling` (error: renamed, deleted, or typo)
+- defined in two places → `multi_home` (single-home violation)
+- still living in `specs/future/` → `pending_merge` (fine while building; clears when the work item merges into `features/`)
+- a defined story/requirement with no `@spec` reference → `uncovered` (unless its Verify is `manual`/`none`)
+
+## Key rules
+
+- Reference by ID; never depend on the path.
+- One ID = one home. Mint new IDs with `spec-fns.mjs next`, never hand-assign.
+- Every test answers: "What breaks if this fails?"

@@ -6,10 +6,10 @@
 
 ## User Stories
 
-- UserStory-skill-01: As a developer, I can have the SDD methodology discoverable in every conversation so that Claude loads and follows the spec-first workflow whenever spec work comes up, without me needing to invoke a separate agent
-- UserStory-skill-02: As a developer, I can read the quality rules so that I know exactly which violations are auto-fixed against the codebase, which are drafted for my confirmation, and which are out of the spec agent's scope
-- UserStory-skill-03: As a developer, I can follow the spec health check procedure so that all spec files in my project are mechanically validated, sync-fixed, and draft-fixed (with my approval) in one pass
-- UserStory-skill-04: As a developer, I can write a work-item spec in `specs/future/` so that planned work is specified with full rigor before any code exists, without weakening the guarantee that `specs/features/` matches the code
+- UserStory-007: As a developer, I can have the SDD methodology discoverable in every conversation so that Claude loads and follows the spec-first workflow whenever spec work comes up, without me needing to invoke a separate agent
+- UserStory-008: As a developer, I can read the quality rules so that I know exactly which violations are auto-fixed against the codebase, which are drafted for my confirmation, and which are out of the spec agent's scope
+- UserStory-009: As a developer, I can follow the spec health check procedure so that all spec files in my project are mechanically validated, sync-fixed, and draft-fixed (with my approval) in one pass
+- UserStory-010: As a developer, I can write a work-item spec in `specs/future/` so that planned work is specified with full rigor before any code exists, without weakening the guarantee that `specs/features/` matches the code
 
 ---
 
@@ -39,15 +39,15 @@
 
 | ID | Requirement | Priority |
 |----|-------------|----------|
-| REQ-1 | SKILL.md must be self-contained: all rules, intent detection, and the flow must be readable without opening any other file | Must |
-| REQ-2 | Quality rules must be grouped by enforcement: PROCESS (followed during execution), SYNC (auto-fixed, codebase is ground truth), DRAFT (drafted, user confirms, intent is ground truth), REVIEW (out of the spec agent's scope), TEST (Test Health Check) | Must |
-| REQ-3 | The Spec Health Check must specify five steps — mechanical validator run (`scripts/validate-specs.mjs`, with manual Glob/Grep fallback if Node is unavailable), sync auto-fix (code-existence checks apply to `features/` only, never to `future/`), draft-and-confirm, link hygiene, and lifecycle hygiene (flag future items whose stories already have passing `@spec` tests as "should be merged") — with no stray-file detection or exemption list | Must |
-| REQ-4 | Each quality rule must include: what it checks, why it exists, how it's enforced, and (for CODE rules) which checklist item it maps to | Must |
-| REQ-5 | The skill must document the difference between Overview spec user stories (no IDs, product-level) and Feature spec user stories (UserStory-* IDs, testable) | Must |
-| REQ-6 | The skill must include a table of contents linking to all major sections | Should |
-| REQ-7 | The skill must provide proactive bug detection triggers so Claude tracks bugs without waiting for explicit "report bug" requests | Should |
-| REQ-8 | The skill must defer detailed format examples to references/ files rather than duplicating content inline | Could |
-| REQ-9 | SKILL.md must define the opt-in Spec Lifecycle: `features/` is present tense (divergence is always a bug under the convention); all unbuilt work lives in `future/` as granular work items (sized to implement and merge in one cycle; new feature → feature template; change → future template, work-item scoped) with a readiness gradient (next item at full rigor, distant items may start thin and are tightened before implementation); shipping = merge rows into the base spec + changelog entry + delete the future file | Must |
+| REQ-014 | SKILL.md must be self-contained: all rules, intent detection, and the flow must be readable without opening any other file | Must |
+| REQ-015 | Quality rules must be grouped by enforcement: PROCESS (followed during execution), SYNC (auto-fixed, codebase is ground truth), DRAFT (drafted, user confirms, intent is ground truth), REVIEW (out of the spec agent's scope), TEST (Test Health Check) | Must |
+| REQ-016 | The Spec Health Check must specify five steps — mechanical validator run (`scripts/validate-specs.mjs`, with manual Glob/Grep fallback if Node is unavailable), sync auto-fix (code-existence checks apply to `features/` only, never to `future/`), draft-and-confirm, link hygiene, and lifecycle hygiene (flag future items whose stories already have passing `@spec` tests as "should be merged") — with no stray-file detection or exemption list | Must |
+| REQ-017 | Each quality rule must include: what it checks, why it exists, how it's enforced, and (for CODE rules) which checklist item it maps to | Must |
+| REQ-018 | The skill must document the difference between Overview spec user stories (no IDs, product-level) and Feature spec user stories (UserStory-* IDs, testable) | Must |
+| REQ-019 | The skill must include a table of contents linking to all major sections | Should |
+| REQ-020 | The skill must provide proactive bug detection triggers so Claude tracks bugs without waiting for explicit "report bug" requests | Should |
+| REQ-021 | The skill must defer detailed format examples to references/ files rather than duplicating content inline | Could |
+| REQ-022 | SKILL.md must define the opt-in Spec Lifecycle: `features/` is present tense (divergence is always a bug under the convention); all unbuilt work lives in `future/` as granular work items (sized to implement and merge in one cycle; new feature → feature template; change → future template, work-item scoped) with a readiness gradient (next item at full rigor, distant items may start thin and are tightened before implementation); shipping = merge rows into the base spec + changelog entry + delete the future file | Must |
 
 ---
 
@@ -228,10 +228,10 @@ skills/spec-driven-development/
 
 ### Critical Paths
 
-1. UserStory-skill-01: Install skill → make a spec-related request → verify the skill is invoked and the methodology followed without /sdd → covers REQ-1, REQ-2
-2. UserStory-skill-02: Read quality rules → identify a violation in each group → verify SYNC is auto-fixed, DRAFT is confirmed first, REVIEW is declined as out of scope → covers REQ-2, REQ-4
-3. UserStory-skill-03: Run spec health check → verify validator runs first → sync fixes applied → draft fixes presented for approval → link hygiene reported → covers REQ-3
-4. UserStory-skill-04: Adopt the lifecycle → write a work-item spec in `specs/future/` → verify the sync pass never code-checks it → ship, merge into the base spec, delete the file → covers REQ-3, REQ-9
+1. UserStory-007: Install skill → make a spec-related request → verify the skill is invoked and the methodology followed without /sdd → covers REQ-014, REQ-015
+2. UserStory-008: Read quality rules → identify a violation in each group → verify SYNC is auto-fixed, DRAFT is confirmed first, REVIEW is declined as out of scope → covers REQ-015, REQ-017
+3. UserStory-009: Run spec health check → verify validator runs first → sync fixes applied → draft fixes presented for approval → link hygiene reported → covers REQ-016
+4. UserStory-010: Adopt the lifecycle → write a work-item spec in `specs/future/` → verify the sync pass never code-checks it → ship, merge into the base spec, delete the file → covers REQ-016, REQ-022
 
 ### Not Worth Testing
 
@@ -265,5 +265,5 @@ No active bugs.
 | 2026-03-25 | Added language tags to fenced code blocks; added blank line before Options Considered list | MD040, MD032 lint compliance |
 | 2026-06-11 | Corrected quality rule count phrasing (22 rules total, 19 enforced; CODE-RULE.11–13 out of scope) | Health check found internal inconsistency |
 | 2026-06-11 | Updated for methodology v2: 20 rules grouped by enforcement (17 enforced), 4-step health check with validator, two-tier templates, draft-and-confirm decision, progressive disclosure of skill loading | Spec synced to SKILL.md 2.0.0 |
-| 2026-06-11 | Added Spec Lifecycle section (REQ-9, UserStory-skill-04), 5-step health check with features/-only sync scoping and lifecycle hygiene (REQ-3), opt-in tense-split decision, version 2.1.0 | Merged spec-lifecycle work item (lifecycle's first execution) |
-| 2026-06-11 | Added granularity and readiness-gradient rules to the Spec Lifecycle (REQ-9) | Work items must be one-cycle sized; thin-then-tighten was implicit in the validator profile but unstated in prose |
+| 2026-06-11 | Added Spec Lifecycle section (REQ-022, UserStory-010), 5-step health check with features/-only sync scoping and lifecycle hygiene (REQ-016), opt-in tense-split decision, version 2.1.0 | Merged spec-lifecycle work item (lifecycle's first execution) |
+| 2026-06-11 | Added granularity and readiness-gradient rules to the Spec Lifecycle (REQ-022) | Work items must be one-cycle sized; thin-then-tighten was implicit in the validator profile but unstated in prose |

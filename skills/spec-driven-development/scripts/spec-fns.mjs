@@ -35,7 +35,8 @@ function corpus() {
       if (e.isDirectory()) walk(full);
       else {
         const isSpec = /specs\/.*\.md$/.test(full);
-        const isCode = /\.(ts|js|svelte|tsx|jsx)$/.test(e.name);
+        // Any comment-bearing source/style/markup/template file can hold an @spec ref.
+        const isCode = /\.(ts|tsx|js|jsx|mjs|cjs|svelte|vue|astro|css|scss|sass|less|html|py|go|rb|rs|java|kt|kts|php|c|h|cpp|hpp|cc|cs|swift|scala|sh|sql)$/.test(e.name);
         if (!isSpec && !isCode) continue;
         files.push({
           path: relative(ROOT, full), isSpec,
@@ -94,11 +95,12 @@ function health(files = corpus()) {
         const cell = line.split("|").map((c) => c.trim()).find((c) => VERIFY.test(c));
         if (cell) verify.set(dm[1], cell.toLowerCase());
       }
+      if (f.isSpec) return; // spec files DEFINE ids; references (@spec) live in code/docs
       const hasSpec = line.includes("@spec");
       if (hasSpec) active = true;
       else if (active && !commentish(line)) active = false; // a non-comment line ends the block
       if (active) {
-        for (const m of line.matchAll(/\b(?:REQ|UserStory|BUG|ERR|EDGE|DEC)-\d+\.\.\d+/g))
+        for (const m of line.matchAll(/\b(?:REQ|UserStory|BUG|ERR|EDGE|DEC)-\d+\.\.(?:(?:REQ|UserStory|BUG|ERR|EDGE|DEC)-)?\d+/g))
           ranges.push({ file: f.path, line: i + 1, text: m[0] });
         let found = 0;
         for (const t of Object.values(TYPES))

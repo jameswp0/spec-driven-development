@@ -23,7 +23,7 @@
 
 ## What It Does
 
-- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with 13 deterministic checks
+- Validates the layout `<spec-dir>/overview.md` + `<spec-dir>/features/*.md` with deterministic structural checks (ID format, required sections, table completeness, placeholder paths, Features/Pipeline links); `@spec` resolution is delegated to `spec-fns.mjs`
 - Scans `<spec-dir>/future/*.md` work items with a relaxed lifecycle profile: missing core sections are WARN (not ERROR), all other content checks apply, and their UserStory IDs join the global duplicate index
 - Classifies every finding as ERROR (must fix) or WARN (input to the health check's sync/draft passes)
 - Prints findings grouped by file with line numbers and rule names, or as a JSON array with `--json`
@@ -41,13 +41,13 @@
 | REQ-033 | ID format checks: UserStory IDs must match `UserStory-<number>` and REQ IDs `REQ-<number>`, each with no in-file duplicates (ERROR); Known Issues bug IDs match `BUG-<number>` (WARN). No numbering-gap check — IDs are global and sequential corpus-wide, so per-file gaps are expected. Cross-file single-home, resolve-by-id, and coverage are handled by `spec-fns.mjs` (health), not this validator | Must |
 | REQ-034 | Structure checks: each feature spec must contain the required sections (User Stories, Out of Scope, Requirements, Error Cases, Edge Cases, Changelog — ERROR if missing); Error Cases and Edge Cases tables with fewer than 3 data rows are WARN; empty table cells anywhere are WARN; backticked paths containing "path/to" are WARN (bare prose mentions are not flagged) | Must |
 | REQ-035 | Link hygiene checks: every overview Features-table link must resolve to an existing file (ERROR); feature specs not linked from the Features table are reported as orphans (WARN) | Must |
-| REQ-036 | `@spec` references in test files (`*.spec.*` / `*.test.*` under the working directory, excluding node_modules and dotfiles) must point to an existing spec file containing the referenced UserStory ID(s) (ERROR) | Must |
+| REQ-036 | `@spec` resolution is delegated to `spec-fns.mjs` (health) — this validator does not parse `@spec`. Existence, single-home, and `future/` (`pending_merge`) are reported there, by ID, across all file types | Must |
 | REQ-037 | Exit code must be 1 if any ERROR finding exists, 0 otherwise | Must |
 | REQ-038 | `--json` must print findings as a JSON array of `{level, file, line, rule, message}` objects instead of the human-readable report | Must |
 | REQ-039 | Spec directory resolution: use the positional argument if given; otherwise try `specs/` then `app_spec/` relative to cwd; if none exists, print an error and exit 1 | Must |
 | REQ-040 | All parsing must skip lines inside ``` or ~~~ code fences so diagrams and examples never trigger findings | Must |
 | REQ-041 | Files under `<spec-dir>/future/` must be scanned with a relaxed profile: missing core sections are WARN (not ERROR); all other content checks (IDs, rows, cells, placeholder paths) apply; future UserStory IDs join the global duplicate-ID index | Must |
-| REQ-042 | `@spec` test references that point into `<spec-dir>/future/` must be an ERROR (`future-spec-ref`) — tests verify present behavior and may only reference `features/` specs | Must |
+| REQ-042 | `future/` references from tests are NOT errors — they are `spec-fns.mjs` `pending_merge` (warn-until-merge), clearing when the work item ships. This validator does not flag them | Must |
 | REQ-043 | If overview.md has a `## Pipeline` section, its table links must resolve to existing files (ERROR) and future files not linked from it are WARN (`pipeline-orphan`); with no Pipeline section, future files produce no orphan findings | Should |
 
 ---
@@ -61,7 +61,7 @@ Spec Health Check — step 1
     → node skills/spec-driven-development/scripts/validate-specs.mjs [spec-dir]
     → resolve spec dir (arg → specs/ → app_spec/)
     → load overview.md + features/*.md + future/*.md (fence-aware; future/ gets the relaxed profile)
-    → run checks 1–13 (IDs, sections, tables, placeholder paths, links, @spec refs, future refs, Pipeline)
+    → run structural checks (IDs, sections, tables, placeholder paths, Features/Pipeline links)
     → findings reported (grouped by file, or --json)
     → ERRORs fixed mechanically; WARNs feed health check steps 2–3
 ```
@@ -76,7 +76,7 @@ Spec Health Check — step 1
 | overview.md missing | Spec directory has no overview.md | ERROR finding `missing-overview`; exit 1 | Create overview.md from `templates/overview.template.md` |
 | Node unavailable or too old | Node.js not installed, or version below 18 | Shell error or syntax error before any findings | Install Node 18+, or fall back to the manual Glob/Grep checks per SKILL.md health check step 1 |
 | Malformed table row | Table row with an empty or missing cell outside a code fence | WARN finding `empty-cell` with file, line, and column number | Fill the cell with real content (or a draft-pass value confirmed by the user) |
-| Broken @spec reference | Test header points to a missing spec file or unknown UserStory ID | ERROR finding `broken-spec-ref` with test file and line | Fix the path/ID in the test header, or add the missing user story to the spec |
+| Malformed ID | A UserStory/REQ ID doesn't match the global `-<number>` format | ERROR `userstory-format` / `req-format` with file and line | Fix the ID (mint with `spec-fns.mjs next`) |
 
 ---
 
@@ -86,13 +86,12 @@ Spec Health Check — step 1
 |----------|-------------------|
 | ASCII diagrams or example tables inside code fences | Ignored — fence-aware parsing skips all fenced lines, including the fence delimiters |
 | Prose mentions "path/to" without backticks (e.g. describing the rule itself) | Not flagged — `placeholder-path` matches backticked occurrences only |
-| Project has no test files | The @spec check (rule 10) is skipped silently; no warning emitted |
-| Comma-separated IDs in one @spec header | Each ID is validated individually against the referenced spec file |
+| @spec references in code | Not parsed here — resolution is `spec-fns.mjs health`'s job (dangling / multi_home / pending_merge) |
 | features/ directory missing or empty | WARN `no-features`; overview checks still run |
 | REQ numbering has a gap | No finding — IDs are global and sequential corpus-wide, so per-file gaps are expected |
 | A REQ or UserStory ID is defined in two files | Not flagged here — cross-file single-home is `spec-fns.mjs health`'s job (`multi_home`), not this validator |
 | future/ file omits core sections (tight delta) | WARN `missing-section`, not ERROR — the relaxed lifecycle profile tolerates section-less deltas |
-| @spec reference points into future/ | ERROR `future-spec-ref` — tests verify present behavior; point the header at the base spec in features/ |
+| @spec reference points into future/ | Not flagged here — it's `spec-fns.mjs` `pending_merge` (warn-until-merge) |
 | Overview has no Pipeline section but future/ files exist | No orphan findings for future files — `pipeline-orphan` applies only when a Pipeline section exists |
 
 ---
@@ -162,3 +161,4 @@ No active bugs.
 | 2026-06-11 | Initial spec | validate-specs.mjs shipped in methodology v2 |
 | 2026-06-11 | Added check 11: placeholder-path (backticked "path/to", WARN) | Gap found during v2 behavioral testing |
 | 2026-06-11 | Added REQ-041–12 and checks 12–13: relaxed future/ profile, future-spec-ref ERROR, Pipeline links + pipeline-orphan; 13 checks total | Merged spec-lifecycle work item (lifecycle's first execution) |
+| 2026-06-14 | v3: UserStory/REQ/BUG id checks accept global `-<number>` format (REQ-033); retired rules 10 + 12 (@spec resolution + future-spec-ref) — delegated to `spec-fns.mjs` health, which resolves by ID and treats future/ refs as `pending_merge` (warn-until-merge), not errors (REQ-036, REQ-042) | Surfaced migrating st-clone: old BUG regex rejected `BUG-###`, and `future-spec-ref` ERROR contradicted the warn-until-merge decision |

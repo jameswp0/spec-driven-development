@@ -12,19 +12,17 @@
  *   2. ERROR  userstory-dup      duplicate UserStory IDs within or across files
  *   3. ERROR  req-format/req-dup REQ IDs in Requirements tables must match REQ-\d+, no in-file dups
  *             (no gap check — global ids are sequential corpus-wide; single-home is spec-fns.mjs)
- *   4. WARN   bug-format         Known Issues IDs not matching BUG-[a-z0-9-]+-\d\d
+ *   4. WARN   bug-format         Known Issues IDs not matching BUG-<number>
  *   5. ERROR  missing-section    required feature sections: User Stories, Out of Scope,
  *                                Requirements, Error Cases, Edge Cases, Changelog
  *   6. WARN   few-rows           fewer than 3 data rows in Error Cases / Edge Cases tables
  *   7. WARN   empty-cell         empty markdown table cells (separator rows ignored)
  *   8. ERROR  broken-link        overview.md Features table links must resolve to existing files
  *   9. WARN   orphan-spec        files in features/ not linked from overview's Features table
- *  10. ERROR  broken-spec-ref    @spec references in test files must point to an existing spec
- *                                file containing the referenced UserStory ID(s)
+ *  10. (retired) @spec resolution is handled by spec-fns.mjs (health), not this validator
  *  11. WARN   placeholder-path   backticked path containing `path/to` — template placeholder
  *                                never replaced with a real path (fix via CODE-RULE.4)
- *  12. ERROR  future-spec-ref    @spec references in test files must not point into
- *                                <spec-dir>/future/ — tests verify present behavior only
+ *  12. (retired) future/ refs are spec-fns `pending_merge` (warn-until-merge), not an error
  *  13. ERROR  broken-link        overview.md Pipeline table links must resolve (same as 8);
  *      WARN   pipeline-orphan    future/ files not linked from the Pipeline table
  *                                (only when a Pipeline section exists)
@@ -184,9 +182,9 @@ function checkFeatureSpec(doc, storyIndex, { future = false } = {}) {
     for (const table of tablesIn(doc, ...bugRange)) {
       for (const row of table.rows) {
         const id = row.cells[0] ?? "";
-        if (!/^BUG-[a-z0-9-]+-\d\d$/.test(id)) {
+        if (!/^BUG-\d+$/.test(id)) {
           add("WARN", doc.file, row.line + 1, "bug-format",
-            `bug ID "${id}" does not match BUG-[a-z0-9-]+-NN`);
+            `bug ID "${id}" does not match BUG-<number>`);
         }
       }
     }
@@ -281,51 +279,11 @@ function checkPipelineLinks(doc, futureFiles) {
   }
 }
 
-// Rules 10 + 12: @spec references in test files
-function checkSpecRefs(root, futureDir) {
-  const testFiles = [];
-  (function walk(dir) {
-    let entries;
-    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
-    for (const entry of entries) {
-      if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
-      const full = join(dir, entry.name);
-      if (entry.isDirectory()) walk(full);
-      else if (/\.(spec|test)\.(ts|tsx|js|jsx)$/.test(entry.name)) testFiles.push(full);
-    }
-  })(root);
-  if (testFiles.length === 0) return; // skip silently
-
-  const specCache = new Map();
-  for (const testFile of testFiles) {
-    const lines = readFileSync(testFile, "utf8").split(/\r?\n/);
-    lines.forEach((line, i) => {
-      const m = line.match(/@spec\s+([^\s:]+):(\S.*)/);
-      if (!m) return;
-      const specPath = resolve(root, m[1]);
-      if (futureDir && (specPath === futureDir || specPath.startsWith(futureDir + "/"))) {
-        add("ERROR", testFile, i + 1, "future-spec-ref",
-          `@spec must not reference a future/ spec ("${m[1]}") — tests verify present behavior; merge the work item into features/ first`);
-        return;
-      }
-      if (!specCache.has(specPath)) {
-        specCache.set(specPath, existsSync(specPath) ? readFileSync(specPath, "utf8") : null);
-      }
-      const specContent = specCache.get(specPath);
-      if (specContent === null) {
-        add("ERROR", testFile, i + 1, "broken-spec-ref",
-          `@spec path "${m[1]}" does not exist`);
-        return;
-      }
-      for (const id of m[2].split(",").map((s) => s.trim()).filter(Boolean)) {
-        if (!specContent.includes(id)) {
-          add("ERROR", testFile, i + 1, "broken-spec-ref",
-            `UserStory ID "${id}" not found in ${m[1]}`);
-        }
-      }
-    });
-  }
-}
+// Rules 10 + 12 retired. @spec resolution (dangling), single-home, and future/
+// references (pending_merge — warn-until-merge) are handled by scripts/spec-fns.mjs
+// (health), which resolves by ID across all file types and does not hard-error on
+// future/ refs. This validator no longer parses @spec.
+function checkSpecRefs() { /* delegated to spec-fns.mjs health */ }
 
 // --- Main -------------------------------------------------------------------
 

@@ -8,6 +8,8 @@ A Claude Code skill and agent for spec-driven development. Specs are the source 
 
 See [CHANGELOG.md](CHANGELOG.md) for full details.
 
+**3.0 — Global IDs + spec primitives:** IDs are now global per type (`REQ-###`, `UserStory-###`, `BUG-###`) — unique across the whole spec set, never per-file — so folding, splitting, or renaming specs never changes an ID or breaks a reference. A stateless query layer (`scripts/spec-fns.mjs`) mints IDs, locates every definition/reference, and reports integrity findings live from the specs and code (no registry to keep in sync). Bugs are no longer deleted on fix — their Known Issues row is marked `resolved` so regression-test `@spec BUG-###` references keep resolving.
+
 **2.1 — Spec lifecycle (opt-in):** `specs/features/` is present tense (always true of the code — divergence is always a bug); unbuilt work lives in `specs/future/` as work-item specs that merge into the base spec and are deleted when shipped. `ls specs/future/` is your progress tracker.
 
 **2.0:**
@@ -119,12 +121,12 @@ Spec → Implement → Test → Update spec if needed
   ┌───────────┐         ┌───────────┐           ┌───────────┐
   │ Test fail │         │ Add to    │           │ Fix code  │
   │ User says │────────▶│ Known     │──────────▶│ Verify    │
-  │ "broken"  │         │ Issues    │           │ Remove    │
-  │ Code rev  │         │           │           │ Changelog │
-  └───────────┘         │ BUG-*-##  │           └───────────┘
-                        │ Severity  │
-                        │ Links     │
-                        └───────────┘
+  │ "broken"  │         │ Issues    │           │ Mark      │
+  │ Code rev  │         │           │           │ Resolved  │
+  └───────────┘         │ BUG-###   │           │ Changelog │
+                        │ Severity  │           └───────────┘
+                        │ Links     │     (row kept: regression
+                        └───────────┘      @spec refs still resolve)
 ```
 
 ### 4. Skill + Agent Architecture
@@ -157,9 +159,10 @@ Spec → Implement → Test → Update spec if needed
 │  │ Reflect     │  │             │  │                          ││
 │  └─────────────┘  └─────────────┘  └──────────────────────────┘│
 │                                                                │
-│  Templates: overview.md, feature.md                            │
-│  Workflows: bootstrap.md, todos.md                             │
+│  Templates: overview.md, feature.md, future.md                 │
+│  Workflows: bootstrap.md, todos.md, migrate.md                 │
 │  References: e2e-test-format.md, examples.md                   │
+│  Scripts: spec-fns.mjs (primitives), validate-specs.mjs        │
 └────────────────────────────────────────────────────────────────┘
 ```
 
@@ -171,11 +174,31 @@ Spec → Implement → Test → Update spec if needed
 | After implementing | Update spec to match reality |
 | Tests failing | Diagnose: is spec, code, or test wrong? |
 | Bug reported | Log in spec's Known Issues |
-| Bug fixed | Remove from Known Issues |
+| Bug fixed | Mark Resolved in Known Issues |
 | "What to work on?" | Surface and prioritize todos |
 | Checking quality | Run health check against specs |
 
-The health check runs the bundled validator (`scripts/validate-specs.mjs`) first for deterministic checks, then reviews the judgment-based rules.
+The health check runs the bundled primitives (`scripts/spec-fns.mjs health`) for identity/coverage findings and the validator (`scripts/validate-specs.mjs`) for deterministic format checks first, then reviews the judgment-based rules.
+
+## Spec Primitives
+
+Identity work — assigning IDs, finding references, checking integrity — is mechanical, so it belongs to a script, not to judgment. `scripts/spec-fns.mjs` is a zero-dependency, **stateless** query layer: the specs and code are the only source of truth, scanned live on every call. There is no database to keep in sync.
+
+Two invariants:
+
+- **Single home** — every ID is *defined* exactly once (one Requirements row, one User Stories item, one Known Issues row). Every other mention is a *link*.
+- **Resolve by ID** — references point at an ID, not a path. The path in an `@spec` tag is advisory; the ID is identity, so folds and renames never break a reference.
+
+Four functions:
+
+| Call | Returns / does |
+|------|----------------|
+| `spec-fns.mjs next <type> [n]` | the next free global ID(s) — mint without scanning |
+| `spec-fns.mjs loc <id>` | every location of an ID, tagged `def` / `ref` / `link` |
+| `spec-fns.mjs health` | the worklist: `multi_home`, `dangling`, `uncovered` findings |
+| `spec-fns.mjs sed <old=new ...>` | exact `sed` commands for a bulk ID rename |
+
+The script **detects; you resolve.** See `workflows/migrate.md` to adopt global IDs in an existing spec set.
 
 ## Usage
 
@@ -202,11 +225,11 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 - Cross-cutting concerns
 
 **Feature specs** (one per feature):
-- User stories (`UserStory-[feature]-##`)
-- Requirements (`REQ-##`)
+- User stories (`UserStory-###`, global)
+- Requirements (`REQ-###`, global)
 - Error cases
 - Edge cases
-- Known issues (`BUG-[feature]-##`)
+- Known issues (`BUG-###`, global)
 - Future considerations (todos)
 - Optional sections (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) only when they earn their place
 
@@ -215,16 +238,16 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 ### User Stories → E2E Tests
 
 ```
-UserStory-chat-01: As a user, I can send a message and get an AI response
+UserStory-001: As a user, I can send a message and get an AI response
 ```
 
-Becomes an E2E test with `@spec` header referencing the story.
+Becomes an E2E test with `@spec` header referencing the story by ID.
 
 ### Requirements → Unit Tests
 
 ```
-REQ-1: Message appears immediately (optimistic update)
-REQ-2: AI response streams token by token
+REQ-001: Message appears immediately (optimistic update)
+REQ-002: AI response streams token by token
 ```
 
 Each requirement is testable with clear pass/fail.
@@ -235,9 +258,9 @@ Bugs live in feature specs under Known Issues:
 
 | ID | Description | Severity | Status | Links |
 |----|-------------|----------|--------|-------|
-| BUG-chat-01 | SSE doesn't reconnect | High | Open | REQ-5 |
+| BUG-001 | SSE doesn't reconnect | High | Open | REQ-005 |
 
-When fixed: remove row, add changelog entry.
+When fixed: set Status to `Resolved` (keep the row so regression-test `@spec BUG-###` references still resolve), add changelog entry.
 
 ### Todos
 
@@ -262,14 +285,16 @@ skills/spec-driven-development/
 │   └── CLAUDE-SDD.md        # CLAUDE.md starter for new projects
 ├── workflows/
 │   ├── bootstrap.md         # Generate specs for existing codebase
-│   └── todos.md             # Todo analysis with YAGNI filtering
+│   ├── todos.md             # Todo analysis with YAGNI filtering
+│   └── migrate.md           # Convert per-feature IDs to global IDs
 ├── references/
 │   ├── e2e-test-format.md    # E2E test header format
 │   ├── examples.md           # Good/bad spec examples
 │   ├── quality-checklist.md  # Full quality checklist
 │   └── test-anti-patterns.md # LLM test anti-patterns
 └── scripts/
-    └── validate-specs.mjs    # Zero-dependency spec validator
+    ├── spec-fns.mjs          # Stateless ID/reference/integrity primitives
+    └── validate-specs.mjs    # Zero-dependency spec format validator
 
 agents/
 └── spec-driven-development.md  # Agent definition

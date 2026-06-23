@@ -70,19 +70,19 @@ The extended rationale behind the summary in the [README](../README.md) — full
 │  User: "Add user auth"                         │  User: "Add user auth"  │
 │           │                                    │           │             │
 │           ▼                                    │           ▼             │
-│  ┌─────────────────┐                           │  ┌─────────────────┐    │
-│  │ AI guesses:     │                           │  │ AI reads spec:  │    │
-│  │ • JWT? Session? │                           │  │                 │    │
-│  │ • OAuth? Basic? │                           │  │ UserStory-01:   │    │
-│  │ • What errors?  │                           │  │ "User can login │    │
-│  │ • What fields?  │                           │  │  with email"    │    │
-│  │                 │                           │  │                 │    │
-│  │ Builds something│                           │  │ REQ-1: Password │    │
-│  │ that might work │                           │  │ min 8 chars     │    │
-│  └────────┬────────┘                           │  │                 │    │
-│           │                                    │  │ Error: "Invalid │    │
-│           ▼                                    │  │ credentials"    │    │
-│  ┌─────────────────┐                           │  └────────┬────────┘    │
+│  ┌─────────────────┐                           │  ┌──────────────────┐   │
+│  │ AI guesses:     │                           │  │ AI reads spec:   │   │
+│  │ • JWT? Session? │                           │  │                  │   │
+│  │ • OAuth? Basic? │                           │  │ UserStory-001:   │   │
+│  │ • What errors?  │                           │  │ "User can login  │   │
+│  │ • What fields?  │                           │  │  with email"     │   │
+│  │                 │                           │  │                  │   │
+│  │ Builds something│                           │  │ REQ-001: Password│   │
+│  │ that might work │                           │  │ min 8 chars      │   │
+│  └────────┬────────┘                           │  │                  │   │
+│           │                                    │  │ Error: "Invalid  │   │
+│           ▼                                    │  │ credentials"     │   │
+│  ┌─────────────────┐                           │  └────────┬─────────┘   │
 │  │ User: "No, I    │                           │           │             │
 │  │ wanted..."      │                           │           ▼             │
 │  │                 │                           │  ┌─────────────────┐    │
@@ -125,8 +125,8 @@ Vibe coding without specs creates a patch loop that compounds debt with every it
 ┌─────────────────────────────┐                 ┌───────────────────────┐      │
 │          PATCH              │                 │         SPEC          │◀───┐ │
 │                             │                 │                       │    │ │
-│  "Fix the JWT thing"        │                 │  UserStory-01: ...    │    │ │
-│  AI adds more code          │                 │  REQ-01: ...          │    │ │
+│  "Fix the JWT thing"        │                 │  UserStory-001: ...   │    │ │
+│  AI adds more code          │                 │  REQ-001: ...         │    │ │
 │  Doesn't know original goal │                 │  Errors: ...          │    │ │
 └──────────────┬──────────────┘                 │  Architecture: ...    │    │ │
                │                                │  Decision: JWT because│    │ │
@@ -221,11 +221,11 @@ Vibe coding without specs creates a patch loop that compounds debt with every it
 │                                                                         │
 │  SPEC                    CODE                   TEST                    │
 │                                                                         │
-│  UserStory-auth-01 ─────▶ login.ts ────────────▶ login.spec.ts          │
-│  "User can login"        handleLogin()          @spec UserStory-auth-01 │
+│  UserStory-001 ─────────▶ login.ts ────────────▶ login.spec.ts          │
+│  "User can login"        handleLogin()          @spec UserStory-001     │
 │                                │                        │               │
 │                                │                        │               │
-│  REQ-1 ─────────────────▶ validates password ──▶ "REQ-1: min 8 chars"   │
+│  REQ-001 ───────────────▶ validates password ──▶ "REQ-001: min 8 chars" │
 │  "Password min 8 chars"                                                 │
 │                                                                         │
 │  ─────────────────────────────────────────────────────────────────────  │
@@ -235,7 +235,7 @@ Vibe coding without specs creates a patch loop that compounds debt with every it
 │                          ▼                                              │
 │              ┌─────────────────────────┐                                │
 │              │ Check: Does code match  │                                │
-│              │ REQ-1? No.              │                                │
+│              │ REQ-001? No.            │                                │
 │              │                         │                                │
 │              │ Fix CODE, not spec.     │                                │
 │              │ This is a bug, not a    │                                │

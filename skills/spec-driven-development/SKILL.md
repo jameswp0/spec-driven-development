@@ -1,7 +1,7 @@
 ---
 name: spec-driven-development
 description: Spec-driven development methodology. Write specs before building, update after implementing, check against when tests fail, log bugs in, surface todos when idle. Use when bootstrapping a codebase, running a spec health check, generating tests from requirements, or writing a feature spec. Specs define intent before code exists and connect intent, code, and tests.
-version: 2.1.0
+version: 3.0.0
 ---
 
 > **Spec location:** Typically `specs/` or `app_spec/`. Adapt paths to your project.
@@ -219,7 +219,7 @@ The script **detects; you resolve.** `multi_home` and `dangling` are judgment ca
 | Need test coverage | Generate tests from requirements |
 | Just finished implementing | Run tests, update spec |
 | Something is broken | Add to Known Issues |
-| Bug was fixed | Remove from Known Issues, add changelog |
+| Bug was fixed | Mark its Known Issues row `resolved` (keep the row), add changelog |
 
 Don't overthink routing. Understand what they need, do it.
 

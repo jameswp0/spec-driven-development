@@ -40,7 +40,14 @@ Full argument with diagrams: [docs/why.md](docs/why.md)
 
 ## Spec
 
-See [`specs/overview.md`](specs/overview.md) for the full product spec — user stories, architecture, feature index, key decisions, and roadmap.
+This repo dogfoods its own methodology — its specs live in [`specs/`](specs/). Start with the [overview](specs/overview.md) (user stories, architecture, feature index, key decisions, roadmap), then the per-component feature specs:
+
+- [Skill](specs/features/skill.md) — SDD methodology, loaded on invocation
+- [Agent](specs/features/agent.md) — autonomous spec worker for heavy-lifting operations
+- [Commands](specs/features/commands.md) — `/sdd` entry point with context summarization
+- [Templates](specs/features/templates.md) — overview/feature/future templates + CLAUDE.md starter
+- [Workflows](specs/features/workflows.md) — bootstrap, todo analysis, migrate guides
+- [Validator](specs/features/validator.md) — zero-dependency mechanical spec validation
 
 ## The Core Loop
 

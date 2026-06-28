@@ -242,28 +242,37 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 
 ## Traceability
 
-Every spec artifact becomes a specific kind of test that verifies specific code, and the `@spec <ID>` tag is the thread tying intent → proof → implementation. Here is one feature traced end to end:
+Every spec artifact becomes a specific kind of test that verifies specific code. The link is one `@spec <ID>` comment — the same ID everywhere it appears. One feature, traced from intent to code:
 
 ```
-Feature: chat
+specs/features/chat.md            ← single home (intent)
+  UserStory-003  send a message, get a streamed reply
+    REQ-011      reply streams token by token
 
-UserStory-003  send a message, get a streamed reply ─▶ e2e/chat.spec.ts
-  ├ REQ-011    reply streams token by token        ─▶ unit/stream.test.ts
-  ├ REQ-012    message appears optimistically      ─▶ unit/chat.test.ts
-  ├ ERR-004    model timeout                       ─▶ edge case test
-  └ BUG-002    SSE drops on reconnect (resolved)   ─▶ regression test
+tests/e2e/chat.spec.ts            ← E2E proves the story
+  // @spec UserStory-003
+  test("sends a message, sees a streamed reply", ...)
 
-Every arrow carries @spec <ID>. DEC-002 records why SSE over WebSocket (no test).
+tests/unit/stream.test.ts         ← unit proves the requirement
+  // @spec REQ-011
+  it("emits tokens incrementally", ...)
+
+src/stream.ts                     ← code carries the same tag
+  // @spec REQ-011
+  export function streamReply() { ... }
 ```
 
-**Single home, resolve by ID.** Each ID is *defined* exactly once — `REQ-011` lives in one Requirements row. Every other mention (a test's `@spec`, an overview link) is a *reference* that resolves by ID, not by path. So folding, splitting, or renaming specs never breaks an arrow — the v3 global-ID payoff.
+Error cases and bugs link the same way — `@spec ERR-004` on an edge-case test, `@spec BUG-002` on a regression test — while decisions like `DEC-002` (why SSE over WebSocket) are rationale, with no test.
 
-The thread is queryable. `spec-fns.mjs loc <id>` walks it live from specs + code:
+**Single home, resolve by ID.** Each ID is *defined* exactly once — `REQ-011` lives in one Requirements row. Every other mention (the test's `@spec`, the code, an overview link) is a *reference* that resolves by ID, not by path. So folding, splitting, or renaming specs never breaks a link — the v3 global-ID payoff.
+
+Because the ID is the link, it's queryable. `spec-fns.mjs loc <id>` walks every occurrence live from specs + code:
 
 ```
 $ spec-fns.mjs loc REQ-011
   def   specs/features/chat.md:42      ← the single home (intent)
   ref   tests/unit/stream.test.ts:10   ← the proof
+  ref   src/stream.ts:7                ← the code
   link  specs/overview.md:88           ← every other mention
 ```
 

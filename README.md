@@ -245,25 +245,25 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 Every spec artifact becomes a specific kind of test that verifies specific code, and the `@spec <ID>` tag is the thread tying intent → proof → implementation. Here is one feature traced end to end:
 
 ```
-Feature: auth
+Feature: chat
 
-UserStory-001  log in with email + password   ─▶ e2e/login.spec.ts
-  ├ REQ-001    password >= 8 chars            ─▶ unit/auth.test.ts
-  ├ REQ-002    lock after 5 failed attempts   ─▶ unit/lockout.test.ts
-  ├ ERR-001    wrong credentials              ─▶ edge case test
-  └ BUG-001    session not cleared (resolved) ─▶ regression test
+UserStory-003  send a message, get a streamed reply ─▶ e2e/chat.spec.ts
+  ├ REQ-011    reply streams token by token        ─▶ unit/stream.test.ts
+  ├ REQ-012    message appears optimistically      ─▶ unit/chat.test.ts
+  ├ ERR-004    model timeout                       ─▶ edge case test
+  └ BUG-002    SSE drops on reconnect (resolved)   ─▶ regression test
 
-Every arrow carries @spec <ID>. DEC-001 records why JWT (no test).
+Every arrow carries @spec <ID>. DEC-002 records why SSE over WebSocket (no test).
 ```
 
-**Single home, resolve by ID.** Each ID is *defined* exactly once — `REQ-001` lives in one Requirements row. Every other mention (a test's `@spec`, an overview link) is a *reference* that resolves by ID, not by path. So folding, splitting, or renaming specs never breaks an arrow — the v3 global-ID payoff.
+**Single home, resolve by ID.** Each ID is *defined* exactly once — `REQ-011` lives in one Requirements row. Every other mention (a test's `@spec`, an overview link) is a *reference* that resolves by ID, not by path. So folding, splitting, or renaming specs never breaks an arrow — the v3 global-ID payoff.
 
 The thread is queryable. `spec-fns.mjs loc <id>` walks it live from specs + code:
 
 ```
-$ spec-fns.mjs loc REQ-001
-  def   specs/features/auth.md:42      ← the single home (intent)
-  ref   tests/unit/auth.test.ts:10     ← the proof
+$ spec-fns.mjs loc REQ-011
+  def   specs/features/chat.md:42      ← the single home (intent)
+  ref   tests/unit/stream.test.ts:10   ← the proof
   link  specs/overview.md:88           ← every other mention
 ```
 

@@ -242,27 +242,21 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 
 ## Traceability
 
-Every spec artifact becomes a specific kind of test, which verifies specific code. The `@spec <ID>` tag is the thread that ties intent → proof → implementation together, and because IDs are global and resolve by ID, one query walks the whole chain.
+Every spec artifact becomes a specific kind of test that verifies specific code, and the `@spec <ID>` tag is the thread tying intent → proof → implementation. Here is one feature traced end to end:
 
 ```
-   SPEC (intent)              TEST (proof)                CODE (impl)
-   ─────────────              ────────────                ───────────
-   UserStory-001  ─────────▶  e2e/login.spec.ts   ─────▶  login.ts
-   "user can log in"          @spec UserStory-001         handleLogin()
+Feature: auth
 
-   REQ-001        ─────────▶  unit/auth.test.ts   ─────▶  validate()
-   "password >= 8 chars"      @spec REQ-001               password rule
+UserStory-001  log in with email + password   ─▶ e2e/login.spec.ts
+  ├ REQ-001    password >= 8 chars            ─▶ unit/auth.test.ts
+  ├ REQ-002    lock after 5 failed attempts   ─▶ unit/lockout.test.ts
+  ├ ERR-001    wrong credentials              ─▶ edge case test
+  └ BUG-001    session not cleared (resolved) ─▶ regression test
 
-   ERR-001 /                  edge-case test       ─────▶  error handling
-   EDGE-001       ─────────▶  @spec ERR-001               + boundaries
-   "failure & limits"
-
-   BUG-001        ─────────▶  regression test      ─────▶  the fix
-   Known Issues,              @spec BUG-001               (row kept,
-   status: resolved                                        status resolved)
-
-   DEC-001        ─────────▶  (no test — rationale captured in the spec)
+Every arrow carries @spec <ID>. DEC-001 records why JWT (no test).
 ```
+
+**Single home, resolve by ID.** Each ID is *defined* exactly once — `REQ-001` lives in one Requirements row. Every other mention (a test's `@spec`, an overview link) is a *reference* that resolves by ID, not by path. So folding, splitting, or renaming specs never breaks an arrow — the v3 global-ID payoff.
 
 The thread is queryable. `spec-fns.mjs loc <id>` walks it live from specs + code:
 
@@ -273,7 +267,14 @@ $ spec-fns.mjs loc REQ-001
   link  specs/overview.md:88           ← every other mention
 ```
 
-A failing test names its `@spec` ID → `loc` gives you the intent it broke and every other reference. A bug is an objective deviation from a specific, traceable line of intent — not a matter of opinion.
+And it runs in reverse — which is what makes a bug objective instead of opinion:
+
+```
+test fails ─▶ read its @spec ID ─▶ loc <ID> ─▶ the intent it broke
+                                               + every other reference
+```
+
+A failing test points at a specific, traceable line of intent. A bug is a deviation from that line — not a matter of opinion.
 
 ## Key Concepts
 

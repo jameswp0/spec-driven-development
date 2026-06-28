@@ -240,6 +240,41 @@ The agent triggers automatically at lifecycle transitions when the skill is load
 - Future considerations (todos)
 - Optional sections (Architecture, Data Model, States & Transitions, API Endpoints, Implementation, Testing Notes) only when they earn their place
 
+## Traceability
+
+Every spec artifact becomes a specific kind of test, which verifies specific code. The `@spec <ID>` tag is the thread that ties intent → proof → implementation together, and because IDs are global and resolve by ID, one query walks the whole chain.
+
+```
+   SPEC (intent)              TEST (proof)                CODE (impl)
+   ─────────────              ────────────                ───────────
+   UserStory-001  ─────────▶  e2e/login.spec.ts   ─────▶  login.ts
+   "user can log in"          @spec UserStory-001         handleLogin()
+
+   REQ-001        ─────────▶  unit/auth.test.ts   ─────▶  validate()
+   "password >= 8 chars"      @spec REQ-001               password rule
+
+   ERR-001 /                  edge-case test       ─────▶  error handling
+   EDGE-001       ─────────▶  @spec ERR-001               + boundaries
+   "failure & limits"
+
+   BUG-001        ─────────▶  regression test      ─────▶  the fix
+   Known Issues,              @spec BUG-001               (row kept,
+   status: resolved                                        status resolved)
+
+   DEC-001        ─────────▶  (no test — rationale captured in the spec)
+```
+
+The thread is queryable. `spec-fns.mjs loc <id>` walks it live from specs + code:
+
+```
+$ spec-fns.mjs loc REQ-001
+  def   specs/features/auth.md:42      ← the single home (intent)
+  ref   tests/unit/auth.test.ts:10     ← the proof
+  link  specs/overview.md:88           ← every other mention
+```
+
+A failing test names its `@spec` ID → `loc` gives you the intent it broke and every other reference. A bug is an objective deviation from a specific, traceable line of intent — not a matter of opinion.
+
 ## Key Concepts
 
 ### User Stories → E2E Tests
